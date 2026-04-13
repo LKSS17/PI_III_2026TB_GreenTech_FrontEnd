@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenTech - Cadastro</title>
+    <link rel="stylesheet" href="../Css/style.css">
+</head>
+<body>
+
+    <div class="login-container">
+        <form class="login-form">
+            <h2>Criar Conta</h2>
+            <p>Junte-se à revolução sustentável</p>
+
+            <div class="input-group">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" placeholder="Seu Nome" required>
+            </div>
+
+            <div class="input-group">
+                <label for="e-mail">E-mail</label>
+                <input type="email" id="e-mail" placeholder="exemplo@greentech.com" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password">Senha</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" placeholder="Crie uma senha" oninput="validarSenha()" required>
+                    <span id="togglePassword" class="toggle-icon">👁️</span>
+                </div>
+                <div id="forca-senha" class="barra-forca"></div>
+                <small id="texto-forca"></small>
+            </div>
+
+            <div class="input-group">
+                <label for="confirm-password">Confirmar Senha</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirm-password" placeholder="Repita a senha" required>
+                    <span id="toggleConfirmPassword" class="toggle-icon">👁️</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">Cadastrar</button>
+
+            <a href="../index.html" class="forgot-password">Já tem uma conta? Faça Login</a>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

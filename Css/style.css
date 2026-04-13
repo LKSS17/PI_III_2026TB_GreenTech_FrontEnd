@@ -1,0 +1,191 @@
+/*Responsividade*/
+
+@media (max-width: 480px){
+  body{
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+
+  .login-container {
+    width: 90%;
+    padding: 20px;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+
+  .login-form h2 {
+    font-size: 1.5rem;
+  }
+
+  .btn-login {
+    padding: 12px;
+    font-size: 1rem;
+  }
+}
+
+/* css */
+
+:root {
+    --bg-body: #f4f1ea;
+    --primary: #3a5a40;
+    --primary-dark: #344e41;
+    --accent: #bc6c25;
+    --text-main: #283618;
+    --white: #ffffff;
+    --gray-light: #dad7cd;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-image: url('../scr/Greentech_fundo.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 100vh;
+    padding: 80px;
+}
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    border-top: 6px solid var(--accent);
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s ease-in-out;
+}
+
+.login-container:hover {
+    background-color: rgba(255, 255, 255, 0.97);
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+
+.login-form h2 {
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 1.8rem;
+}
+
+.login-form p {
+    color: #444;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid var(--gray-light);
+    border-radius: 10px;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
+    background-color: var(--white);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-login:hover {
+    background-color: var(--primary-dark);
+}
+
+.forgot-password {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.barra-forca {
+    height: 6px;
+    width: 0%;
+    margin-top: 8px;
+    border-radius: 10px;
+    background-color: var(--gray-light);
+    transition: all 0.4s ease;
+}
+
+#texto-forca {
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: block;
+    margin-top: 5px;
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-icon {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    user-select: none;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.toggle-icon:hover {
+    opacity: 1;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    body {
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .login-container {
+        max-width: 100%;
+        padding: 30px 20px;
+    }
+}

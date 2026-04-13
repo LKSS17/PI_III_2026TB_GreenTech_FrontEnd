@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenTech - Estoque de Sementes</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="material-symbols-outlined sidebar-icon">potted_plant</span>
+        <h2>GreenTech</h2>
+      </div>
+
+      <ul class="sidebar-links">
+        <h4>
+          <div class="menu-separator"></div>
+          <span>Monitoramento</span>
+        </h4>
+        <li>
+          <a href="dashboard.html"
+            ><span class="material-symbols-outlined">dashboard</span
+            ><span class="link-text">Painel Geral</span></a
+          >
+        </li>
+        <li>
+          <a href="sensores.html"
+            ><span class="material-symbols-outlined">thermostat</span
+            ><span class="link-text">Sensores IoT</span></a
+          >
+        </li>
+        <li>
+          <a href="irrigacao.html"
+            ><span class="material-symbols-outlined">water_drop</span
+            ><span class="link-text">Irrigação</span></a
+          >
+        </li>
+
+        <h4>
+          <div class="menu-separator"></div>
+          <span>Rastreabilidade</span>
+        </h4>
+        <li>
+          <a href="estoque.html" class="active"
+            ><span class="material-symbols-outlined">inventory_2</span
+            ><span class="link-text">Estoque Sementes</span></a
+          >
+        </li>
+        <li>
+          <a href="estufas.html"
+            ><span class="material-symbols-outlined">agriculture</span
+            ><span class="link-text">Estufas e Mesas</span></a
+          >
+        </li>
+        <li>
+          <a href="lotes.html"
+            ><span class="material-symbols-outlined">qr_code_2</span
+            ><span class="link-text">Lotes e IDs</span></a
+          >
+        </li>
+
+        <h4>
+          <div class="menu-separator"></div>
+          <span>Conta</span>
+        </h4>
+        <li>
+          <a href="perfil.html"
+            ><span class="material-symbols-outlined">account_circle</span
+            ><span class="link-text">Meu Perfil</span></a
+          >
+        </li>
+        <li>
+          <a href="configuracoes.html"
+            ><span class="material-symbols-outlined">settings</span
+            ><span class="link-text">Configurações</span></a
+          >
+        </li>
+        <li>
+          <a href="../index.html"
+            ><span class="material-symbols-outlined">logout</span
+            ><span class="link-text">Sair</span></a
+          >
+        </li>
+      </ul>
+
+      <div class="user-account">
+        <div class="user-profile">
+          <img src="../scr/Greentech_fundo.png" alt="Perfil" />
+          <div class="user-detail">
+            <h3>Lucas</h3>
+            <span>Sistemas de Informação</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="weather-time-container">
+        <div class="weather-info">
+          <span class="material-symbols-outlined weather-icon"
+            >partly_cloudy_day</span
+          >
+          <span id="temp">24°C</span>
+        </div>
+        <div class="time-info" id="clock">00:00:00</div>
+      </div>
+
+      <header class="dash-header">
+        <h1>Estoque de Sementes 🌾</h1>
+        <p>Gestão de lotes de insumos e rastreabilidade inicial.</p>
+      </header>
+
+      <section class="registration-container-estoque">
+        <div class="action-bar-estoque">
+          <div class="search-box-estoque">
+            <span class="material-symbols-outlined search-icon">search</span>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Buscar lote ou cultura..."
+            />
+          </div>
+
+          <button class="btn-generate" onclick="abrirFormularioNovo()">
+            <span class="material-symbols-outlined">add</span>
+            Novo Lote de Semente
+          </button>
+        </div>
+
+        <div class="inventory-split-view">
+          <div class="seed-list-container" id="lista-sementes"></div>
+
+          <div class="seed-detail-panel" id="painel-principal"></div>
+        </div>
+      </section>
+
+      <footer class="dash-footer">
+        <img
+          src="../scr/banner_dashboard.png"
+          alt="GreenTech ERP"
+          class="footer-banner"
+        />
+      </footer>
+    </main>
+
+    <script src="estoque.js"></script>
+  </body>
+</html>
