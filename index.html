@@ -7,26 +7,58 @@
     <link rel="stylesheet" href="/Css/style.css">
 </head>
 <body>
-    <div class="login-container">
-        <form class="login-form">
-            <h2>GreenTech</h2>
-            <p>Conectando inovação e sustentabilidade</p>
-            
-            <div class="input-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="Digite seu e-mail" required>
-            </div>
+<div class="login-container">
+    <form class="login-form" id="form-login">
+        <h2>GreenTech</h2>
+        <p>Conectando inovação e sustentabilidade</p>
 
-            <div class="input-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" placeholder="Digite sua senha" required>
-            </div>
+        <div class="input-group">
+            <label for="username">Nome de Usuário</label>
+            <input type="text" id="username" placeholder="Digite seu nome de usuário" required>
+        </div>
 
-            <button type="submit" class="btn-login">Entrar</button>
-            
-            <a href="cadastro/cadastro.html" class="forgot-password">Não tem uma conta? Cadastre-se aqui</a>
-            <a href="/recuperar_senha/recuperar.html" class="forgot-password">Esqueceu a senha?</a>
-        </form>
-    </div>
+        <div class="input-group">
+            <label for="password">Senha</label>
+            <input type="password" id="password" placeholder="Digite sua senha" required>
+        </div>
+
+        <button type="submit" class="btn-login">Entrar</button>
+
+        <a href="/recuperar_senha/recuperar.html" class="forgot-password">Esqueceu a senha?</a>
+    </form>
+</div>
+
+<script>
+    document.getElementById('form-login').addEventListener('submit', async function(event) {
+        // impede recarregar a página
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+
+            if (response.ok) {
+                window.location.href = '/dashboard/dashboard.html';
+            } else {
+                alert('E-mail ou senha incorretos. Tente novamente.');
+            }
+
+        } catch (error) {
+            console.error('Erro de conexão:', error);
+            alert('Erro ao conectar com o servidor. Verifique se a API está rodando.');
+        }
+    });
+</script>
 </body>
 </html>
