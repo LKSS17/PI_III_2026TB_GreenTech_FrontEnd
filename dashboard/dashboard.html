@@ -6,177 +6,233 @@
     <title>GreenTech - Painel Geral</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="/dashboard/style.css" />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <script>
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            alert("Acesso negado. Por favor, faça login.");
+            // Fórmula dinâmica que acha a raiz do projeto em qualquer servidor
+            window.location.replace(window.location.origin + window.location.pathname.split('/dashboard/')[0] + '/index.html');
+        }
+    </script>
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <span class="material-symbols-outlined" style="color: #bc6c25; font-size: 2rem;">potted_plant</span>
-            <h2>GreenTech</h2>
-        </div>
-        
-        <ul class="sidebar-links">
-            <h4>
-                <div class="menu-separator"></div>
-                <span>Monitoramento</span>
-            </h4>
-            <li>
-                <a href="dashboard.html" class="active">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span class="link-text">Painel Geral</span>
-                </a>
-            </li>
-            <li>
-                <a href="sensores.html">
-                    <span class="material-symbols-outlined">thermostat</span>
-                    <span class="link-text">Sensores IoT</span>
-                </a>
-            </li>
-            <li>
-                <a href="irrigacao.html">
-                    <span class="material-symbols-outlined">water_drop</span>
-                    <span class="link-text">Irrigação</span>
-                </a>
-            </li>
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <span class="material-symbols-outlined" style="color: #bc6c25; font-size: 2rem;">potted_plant</span>
+        <h2>GreenTech</h2>
+    </div>
 
-            <h4>
-                <div class="menu-separator"></div>
-                <span>Rastreabilidade</span>
-            </h4>
-            <li>
-                <a href="estoque.html">
-                    <span class="material-symbols-outlined">inventory_2</span>
-                    <span class="link-text">Estoque Sementes</span>
-                </a>
-            </li>
-            <li>
-                <a href="estufas.html">
-                    <span class="material-symbols-outlined">agriculture</span>
-                    <span class="link-text">Estufas e Mesas</span>
-                </a>
-            </li>
-            <li>
-                <a href="lotes.html">
-                    <span class="material-symbols-outlined">qr_code_2</span>
-                    <span class="link-text">Lotes e IDs</span>
-                </a>
-            </li>
+    <ul class="sidebar-links">
+        <h4>
+            <div class="menu-separator"></div>
+            <span>Monitoramento</span>
+        </h4>
+        <li>
+            <a href="dashboard.html" class="active">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="link-text">Painel Geral</span>
+            </a>
+        </li>
+        <li>
+            <a href="sensores.html">
+                <span class="material-symbols-outlined">thermostat</span>
+                <span class="link-text">Sensores IoT</span>
+            </a>
+        </li>
+        <li>
+            <a href="irrigacao.html">
+                <span class="material-symbols-outlined">water_drop</span>
+                <span class="link-text">Irrigação</span>
+            </a>
+        </li>
 
-            <h4>
-                <div class="menu-separator"></div>
-                <span>Conta</span>
-            </h4>
-            <li>
-                <a href="perfil.html">
-                    <span class="material-symbols-outlined">account_circle</span>
-                    <span class="link-text">Meu Perfil</span>
-                </a>
-            </li>
-            <li>
-                <a href="configuracoes.html">
-                    <span class="material-symbols-outlined">settings</span>
-                    <span class="link-text">Configurações</span>
-                </a>
-            </li>
-            <li>
-                <a href="../index.html">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span class="link-text">Sair</span>
-                </a>
-            </li>
-        </ul>
+        <h4>
+            <div class="menu-separator"></div>
+            <span>Rastreabilidade</span>
+        </h4>
+        <li>
+            <a href="estoque.html">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <span class="link-text">Estoque Sementes</span>
+            </a>
+        </li>
+        <li>
+            <a href="estufas.html">
+                <span class="material-symbols-outlined">agriculture</span>
+                <span class="link-text">Estufas e Mesas</span>
+            </a>
+        </li>
+        <li>
+            <a href="lotes.html">
+                <span class="material-symbols-outlined">qr_code_2</span>
+                <span class="link-text">Lotes e IDs</span>
+            </a>
+        </li>
 
-        <div class="user-account">
-            <div class="user-profile">
-                <img src="../scr/Greentech_fundo.png" alt="Perfil" />
-                <div class="user-detail">
-                    <h3>Lucas</h3>
-                    <span>Sistemas de Informação</span>
-                </div>
+        <h4>
+            <div class="menu-separator"></div>
+            <span>Conta</span>
+        </h4>
+        <li>
+            <a href="perfil.html">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span class="link-text">Meu Perfil</span>
+            </a>
+        </li>
+        <li>
+            <a href="configuracoes.html">
+                <span class="material-symbols-outlined">settings</span>
+                <span class="link-text">Configurações</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" onclick="fazerLogout()">
+                <span class="material-symbols-outlined">logout</span>
+                <span class="link-text">Sair</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="user-account">
+        <div class="user-profile">
+            <img src="../scr/Greentech_fundo.png" alt="Perfil" />
+            <div class="user-detail">
+                <h3>Lucas</h3>
+                <span>Sistemas de Informação</span>
             </div>
         </div>
-    </aside>
+    </div>
+</aside>
 
-    <main class="main-content">
-        <header class="dash-header">
-            <h1>Painel Geral 🌿</h1>
-            <p>Gerenciamento e Registro de Lotes de Rastreabilidade.</p>
-        </header>
+<main class="main-content">
+    <header class="dash-header">
+        <h1>Painel Geral 🌿</h1>
+        <p>Gerenciamento e Registro de Lotes de Rastreabilidade.</p>
+    </header>
 
-        <section class="registration-container">
-            <div class="form-card">
-                <div class="form-header">
-                    <span class="material-symbols-outlined">add_task</span>
-                    <h2>Registro de Novo Plantio</h2>
-                </div>
-                
-                <form id="form-plantio" class="grid-form">
-                    <div class="form-group">
-                        <label>Semente / Cultura</label>
-                        <select id="semente" required>
-                            <option value="">Selecione a cultura...</option>
-                            <option value="alface">Alface Americana</option>
-                            <option value="tomate">Tomate Cereja</option>
-                            <option value="rucula">Rúcula</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Responsável Técnico</label>
-                        <input type="text" id="responsavel" value="Lucas" readonly>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Estufa</label>
-                        <div class="input-with-prefix">
-                            <span>Estufa - </span>
-                            <input type="number" id="estufa" placeholder="01" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Mesa de Cultivo</label>
-                        <div class="input-with-prefix">
-                            <span>M-</span>
-                            <input type="number" id="mesa" placeholder="05" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Data e Hora do Plantio</label>
-                        <input type="datetime-local" id="data-hora" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>ID do Lote de Semente</label>
-                        <div class="input-with-prefix">
-                            <span>LOTE-</span>
-                            <input type="text" id="id-semente" placeholder="XYZ987" required>
-                        </div>
-                    </div>
-
-                    <div class="form-footer">
-                        <button type="submit" class="btn-generate">
-                            <span class="material-symbols-outlined">qr_code_scanner</span>
-                            Gerar Lote de Rastreabilidade
-                        </button>
-                    </div>
-                </form>
+    <section class="registration-container">
+        <div class="form-card">
+            <div class="form-header">
+                <span class="material-symbols-outlined">add_task</span>
+                <h2>Registro de Novo Plantio</h2>
             </div>
-        </section>
 
-        <footer class="dash-footer">
-            <img src="/scr/banner_dashboard.png" alt="GreenTech ERP" class="footer-banner">
-        </footer>
-    </main>
+            <form id="form-plantio" class="grid-form">
+                <div class="form-group">
+                    <label>Semente / Cultura</label>
+                    <select id="semente" required>
+                        <option value="">Selecione a cultura...</option>
+                        <option value="alface">Alface Americana</option>
+                        <option value="tomate">Tomate Cereja</option>
+                        <option value="rucula">Rúcula</option>
+                    </select>
+                </div>
 
-    <script>
-        window.onload = function() {
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.getElementById('data-hora').value = now.toISOString().slice(0,16);
+                <div class="form-group">
+                    <label>Responsável Técnico</label>
+                    <input type="text" id="responsavel" value="Lucas" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Estufa</label>
+                    <div class="input-with-prefix">
+                        <span>Estufa - </span>
+                        <input type="number" id="estufa" placeholder="01" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mesa de Cultivo</label>
+                    <div class="input-with-prefix">
+                        <span>M-</span>
+                        <input type="number" id="mesa" placeholder="05" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Data e Hora do Plantio</label>
+                    <input type="datetime-local" id="data-hora" required>
+                </div>
+
+                <div class="form-group">
+                    <label>ID do Lote de Semente</label>
+                    <div class="input-with-prefix">
+                        <span>LOTE-</span>
+                        <input type="text" id="id-semente" placeholder="XYZ987" required>
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="btn-generate">
+                        <span class="material-symbols-outlined">qr_code_scanner</span>
+                        Gerar Lote de Rastreabilidade
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer class="dash-footer">
+        <img src="../scr/banner_dashboard.png" alt="GreenTech ERP" class="footer-banner">
+    </footer>
+</main>
+
+<script>
+    window.onload = function() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('data-hora').value = now.toISOString().slice(0,16);
+    };
+
+    function fazerLogout() {
+        localStorage.removeItem('access_token');
+        window.location.replace(window.location.origin + window.location.pathname.split('/dashboard/')[0] + '/index.html');
+    }
+
+    document.getElementById('form-plantio').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const userToken = localStorage.getItem('access_token');
+
+        const dadosPlantio = {
+            cultura: document.getElementById('semente').value,
+            estufa_id: document.getElementById('estufa').value,
+            mesa_id: document.getElementById('mesa').value,
+            data_plantio: document.getElementById('data-hora').value,
+            lote_semente: document.getElementById('id-semente').value
         };
-    </script>
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/lotes/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${userToken}`
+                },
+                body: JSON.stringify(dadosPlantio)
+            });
+
+            if (response.status === 401) {
+                alert('Sessão expirada. Faça login novamente.');
+                fazerLogout();
+                return;
+            }
+
+            if (response.ok) {
+                alert('Plantio registrado com sucesso!');
+                document.getElementById('form-plantio').reset();
+            } else {
+                alert('Erro ao registrar o plantio. Verifique os dados.');
+            }
+        } catch (error) {
+            console.error("Erro na requisição:", error);
+            alert("Não foi possível conectar ao servidor.");
+        }
+    });
+</script>
 </body>
 </html>

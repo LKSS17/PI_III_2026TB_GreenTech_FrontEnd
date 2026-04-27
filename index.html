@@ -49,9 +49,11 @@
             });
 
             if (response.ok) {
-                window.location.href = '/dashboard/dashboard.html';
-            } else {
-                alert('E-mail ou senha incorretos. Tente novamente.');
+                const data = await response.json();
+                localStorage.setItem('access_token', data.access);
+
+                window.location.href = window.location.href.replace('index.html', 'dashboard/dashboard.html');
+
             }
 
         } catch (error) {
