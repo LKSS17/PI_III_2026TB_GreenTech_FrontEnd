@@ -65,17 +65,44 @@
                   <label>Fornecedor</label>
                   <input type="text" v-model="novoLote.fornecedor" required>
                 </div>
+
+                <div class="form-group">
+                  <label>Data de Plantio</label>
+                  <input type="date" v-model="novoLote.dataPlantio" required>
+                </div>
+
                 <div class="form-group">
                   <label>Validade</label>
                   <input type="date" v-model="novoLote.validade" required>
                 </div>
+
                 <div class="form-group">
                   <label>Custo Unitário</label>
                   <input type="text" v-model="novoLote.custo" required>
                 </div>
+
                 <div class="form-group">
                   <label>Quantidade</label>
                   <input type="number" v-model="novoLote.quantidade" required>
+                </div>
+
+                <div class="form-group">
+                  <label>Custo Total</label>
+                  <input type="number" step="0.01" v-model="novoLote.custoTotal" required>
+                </div>
+
+                <div class="form-group">
+                  <label>Status</label>
+                  <select v-model="novoLote.status" required>
+                    <option value="ES">Em Estoque</option>
+                    <option value="BX">Estoque Baixo</option>
+                    <option value="ES">Disponível</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>ID da Estufa</label>
+                  <input type="number" v-model="novoLote.estufaId" required>
                 </div>
                 <div class="form-group">
                   <label>Unidade</label>
@@ -134,6 +161,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 
+const API_URL = 'http://127.0.0.1:8000/api/lotes/';
+
 const sementesBD = ref([
   { id: "L-ALF-001", cultura: "Alface Americana", fornecedor: "Sementes Brasil Ltda", validade: "2026-10-15", custo: "12,50", quantidade: "500", unidade: "g", statusClasse: "badge-good", statusTexto: "Em Estoque" },
   { id: "L-TOM-042", cultura: "Tomate Cereja", fornecedor: "AgroTec Insumos", validade: "2026-08-02", custo: "45,00", quantidade: "50", unidade: "unid.", statusClasse: "badge-low", statusTexto: "Estoque Baixo" }
@@ -141,9 +170,19 @@ const sementesBD = ref([
 
 const sementeSelecionadaId = ref(sementesBD.value[0].id);
 const modoCadastro = ref(false);
+const salvando = ref(false);
 
 const novoLote = ref({
-  cultura: '', fornecedor: '', validade: '', custo: '', quantidade: '', unidade: 'g'
+  cultura: '',
+  fornecedor: '',
+  dataPlantio: '',
+  validade: '',
+  custo: '',
+  status: 'ES',
+  custoTotal: '',
+  estufaId: '',
+  quantidade: '',
+  unidade: 'g'
 });
 
 const sementeSelecionada = computed(() => {
@@ -156,18 +195,99 @@ const selecionarSemente = (id) => {
   modoCadastro.value = false;
 };
 
-const salvarNovaSemente = () => {
-  const idGerado = "L-" + Math.floor(Math.random() * 900 + 100);
+const formatarStatus = (status) => {
+  if (status === 'BX') {
+    return {
+      statusClasse: 'badge-low',
+      statusTexto: 'Estoque Baixo'
+    };
+  }
 
-  sementesBD.value.unshift({
-    id: idGerado,
-    ...novoLote.value,
-    statusClasse: "badge-good",
-    statusTexto: "Em Estoque"
-  });
+  return {
+    statusClasse: 'badge-good',
+    statusTexto: 'Em Estoque'
+  };
+};
 
-  novoLote.value = { cultura: '', fornecedor: '', validade: '', custo: '', quantidade: '', unidade: 'g' };
-  selecionarSemente(idGerado);
+const limparFormulario = () => {
+  novoLote.value = {
+    cultura: '',
+    fornecedor: '',
+    dataPlantio: '',
+    validade: '',
+    custo: '',
+    status: 'ES',
+    custoTotal: '',
+    estufaId: '',
+    quantidade: '',
+    unidade: 'g'
+  };
+};
+
+const salvarNovaSemente = async () => {
+  try {
+    salvando.value = true;
+
+    const token = localStorage.getItem('access_token');
+
+    console.log('Token usado no front:', token);
+
+    if (!token) {
+      alert('Sessão expirada. Faça login novamente.');
+      return;
+    }
+
+    const payload = {
+      estufa: Number(novoLote.value.estufaId),
+      cultura: novoLote.value.cultura,
+      fornecedor: novoLote.value.fornecedor,
+      data_plantio: novoLote.value.dataPlantio,
+      validade: novoLote.value.validade,
+      status: novoLote.value.status,
+      custo: Number(String(novoLote.value.custo).replace(',', '.')),
+      custo_total: Number(novoLote.value.custoTotal),
+      quantidade: Number(novoLote.value.quantidade),
+      unidade: novoLote.value.unidade
+    };
+
+    const resposta = await fetch('http://127.0.0.1:8000/api/lotes/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resposta.ok) {
+      const erro = await resposta.text();
+      console.log('Status:', resposta.status);
+      console.log('Erro do backend:', erro);
+      throw new Error('Erro ao cadastrar nova semente');
+    }
+
+    const sementeCadastrada = await resposta.json();
+
+    sementesBD.value.unshift({
+      id: sementeCadastrada.id,
+      cultura: sementeCadastrada.cultura,
+      fornecedor: sementeCadastrada.fornecedor,
+      validade: sementeCadastrada.validade,
+      custo: sementeCadastrada.custo,
+      quantidade: sementeCadastrada.quantidade,
+      unidade: sementeCadastrada.unidade,
+      statusClasse: sementeCadastrada.status === 'BX' ? 'badge-low' : 'badge-good',
+      statusTexto: sementeCadastrada.status === 'BX' ? 'Estoque Baixo' : 'Em Estoque'
+    });
+
+    limparFormulario();
+    selecionarSemente(sementeCadastrada.id);
+  } catch (error) {
+    console.error(error);
+    alert('Não foi possível cadastrar o lote de semente.');
+  } finally {
+    salvando.value = false;
+  }
 };
 
 const excluirSemente = (id) => {

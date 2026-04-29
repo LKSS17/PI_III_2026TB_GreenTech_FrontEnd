@@ -95,7 +95,7 @@ onMounted(() => {
 });
 
 // envio para a API
-const registrarPlantio = async () => {
+/* const registrarPlantio = async () => {
   const token = localStorage.getItem('access_token');
 
   try {
@@ -121,5 +121,5 @@ const registrarPlantio = async () => {
     console.error("Erro:", error);
     alert("Erro de conexão com o servidor.");
   }
-};
+}; */
 </script>
