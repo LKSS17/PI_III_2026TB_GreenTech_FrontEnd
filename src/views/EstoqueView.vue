@@ -207,7 +207,7 @@ const buscarSementes = async () => {
       console.log('Status:', resposta.status);
       console.log('Erro do backend:', erro);
 
-      alert("Houve algum erro ao buscar as sementes.")
+      alert("Houve algum erro ao buscar as sementes.");
 
       throw new Error('Erro ao buscar sementes');
     }

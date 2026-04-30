@@ -80,8 +80,8 @@
       <div class="user-profile">
         <img src="@/assets/img/Greentech_fundo.png" alt="Perfil" />
         <div class="user-detail">
-          <h3>Lucas</h3>
-          <span>Sistemas de Informação</span>
+          <h3>{{ nomeUsuario || 'Usuário' }}</h3>
+          <span>{{ cargoUsuario || 'GreenTech' }}</span>
         </div>
       </div>
     </div>
@@ -89,16 +89,50 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+const nomeUsuario = ref('');
+const cargoUsuario = ref('');
+
+const buscarUsuario = async () => {
+  const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    return;
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const funcionario = await response.json();
+
+    nomeUsuario.value = funcionario.nome_completo;
+    cargoUsuario.value = funcionario.cargo_display;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const fazerLogout = () => {
-
   localStorage.removeItem('access_token');
-
-  // localStorage.clear();
+  localStorage.removeItem('refresh_token');
 
   router.replace('/');
 };
+
+onMounted(() => {
+  buscarUsuario();
+});
 </script>

@@ -27,7 +27,7 @@
 
           <div class="form-group">
             <label>Responsável Técnico</label>
-            <input type="text" value="Lucas" readonly>
+            <input type="text" v-model="nomeUsuario" readonly>
           </div>
 
           <div class="form-group">
@@ -88,13 +88,50 @@ const form = ref({
   lote_semente: ''
 });
 
+const nomeUsuario = ref('');
+
 onMounted(() => {
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   form.value.data_plantio = now.toISOString().slice(0, 16);
+
+  buscarUsuario();
 });
 
 // envio para a API
+const buscarUsuario = async () => {
+  const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    alert("Token expirado, faça login novamente.");
+    throw new Error("Token expirado");
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const erro = await response.text();
+      console.log('Status:', response.status);
+      console.log('Erro:', erro);
+      throw new Error("Erro ao buscar usuário");
+    }
+
+    const funcionario = await response.json();
+
+    nomeUsuario.value = funcionario.nome_completo;
+    console.log(nomeUsuario.value);
+  } catch (error) {
+    console.error(error);
+    alert("Houve um erro ao buscar informações de usuário.");
+  }
+};
+
 /* const registrarPlantio = async () => {
   const token = localStorage.getItem('access_token');
 
