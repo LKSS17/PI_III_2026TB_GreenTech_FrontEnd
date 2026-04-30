@@ -206,6 +206,9 @@ const buscarSementes = async () => {
       const erro = await resposta.text();
       console.log('Status:', resposta.status);
       console.log('Erro do backend:', erro);
+
+      alert("Houve algum erro ao buscar as sementes.")
+
       throw new Error('Erro ao buscar sementes');
     }
 
@@ -276,8 +279,6 @@ const salvarNovaSemente = async () => {
 
     const token = localStorage.getItem('access_token');
 
-    console.log('Token usado no front:', token);
-
     if (!token) {
       alert('Sessão expirada. Faça login novamente.');
       return;
@@ -337,15 +338,36 @@ const salvarNovaSemente = async () => {
 };
 
 const excluirSemente = (id) => {
-  if (confirm(`Tem certeza que deseja excluir o lote ${id}?`)) {
-    sementesBD.value = sementesBD.value.filter(s => s.id !== id);
-    if (sementesBD.value.length > 0) {
-      selecionarSemente(sementesBD.value[0].id);
-    } else {
-      sementeSelecionadaId.value = null;
-    }
+
+  const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    alert('Sessão expirada. Faça login novamente.');
+    return;
   }
-};
+
+  if (confirm(`Tem certeza que deseja excluir o lote ${id}?`)) {
+    fetch(`http://127.0.0.1:8000/api/lotes/${id}/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          alert("Houve algum erro ao excluir a semente.")
+          throw new Error('Erro ao excluir semente');
+        } else {
+          sementesBD.value = sementesBD.value.filter(s => s.id !== id);
+          if (sementesBD.value.length > 0) {
+            selecionarSemente(sementesBD.value[0].id);
+          } else {
+            sementeSelecionadaId.value = null;
+          }
+        }
+      })
+  }
+}
 
 // RELÓGIO
 const relogio = ref('');
