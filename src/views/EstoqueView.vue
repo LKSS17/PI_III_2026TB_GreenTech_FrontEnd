@@ -163,14 +163,11 @@ import Sidebar from '@/components/Sidebar.vue';
 
 const API_URL = 'http://127.0.0.1:8000/api/lotes/';
 
-const sementesBD = ref([
-  { id: "L-ALF-001", cultura: "Alface Americana", fornecedor: "Sementes Brasil Ltda", validade: "2026-10-15", custo: "12,50", quantidade: "500", unidade: "g", statusClasse: "badge-good", statusTexto: "Em Estoque" },
-  { id: "L-TOM-042", cultura: "Tomate Cereja", fornecedor: "AgroTec Insumos", validade: "2026-08-02", custo: "45,00", quantidade: "50", unidade: "unid.", statusClasse: "badge-low", statusTexto: "Estoque Baixo" }
-]);
+const sementesBD = ref([]);
 
-const sementeSelecionadaId = ref(sementesBD.value[0].id);
-const modoCadastro = ref(false);
-const salvando = ref(false);
+const sementeSelecionadaId = ref(null);
+const modoCadastro = ref(null);
+const salvando = ref(null);
 
 const novoLote = ref({
   cultura: '',
@@ -190,6 +187,55 @@ const sementeSelecionada = computed(() => {
 });
 
 // METODOS
+const buscarSementes = async () => {
+  try{
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('Sessão expirada. Faça login novamente.');
+      return;
+    }
+
+    const resposta = await fetch(API_URL, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!resposta.ok) {
+      const erro = await resposta.text();
+      console.log('Status:', resposta.status);
+      console.log('Erro do backend:', erro);
+      throw new Error('Erro ao buscar sementes');
+    }
+
+    const dados = await resposta.json();
+
+    sementesBD.value = dados.map((semente) => {
+      const statusFormatado = formatarStatus(semente.status);
+
+      return {
+        id: semente.id,
+        cultura: semente.cultura,
+        fornecedor: semente.fornecedor,
+        validade: semente.validade,
+        custo: semente.custo,
+        quantidade: semente.quantidade,
+        unidade: semente.unidade,
+        statusClasse: statusFormatado.statusClasse,
+        statusTexto: statusFormatado.statusTexto
+      };
+    });
+
+    if (sementesBD.value.length > 0) {
+      sementeSelecionadaId.value = sementesBD.value[0].id;
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Não foi possível carregar os lotes de sementes.');
+  }
+};
+
 const selecionarSemente = (id) => {
   sementeSelecionadaId.value = id;
   modoCadastro.value = false;
@@ -306,6 +352,8 @@ const relogio = ref('');
 let intervaloRelogio;
 
 onMounted(() => {
+  buscarSementes();
+
   intervaloRelogio = setInterval(() => {
     relogio.value = new Date().toLocaleTimeString("pt-BR", { hour12: false });
   }, 1000);
