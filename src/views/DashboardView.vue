@@ -19,9 +19,13 @@
             <label>Semente / Cultura</label>
             <select v-model="form.cultura" required>
               <option value="">Selecione a cultura...</option>
-              <option value="alface">Alface Americana</option>
-              <option value="tomate">Tomate Cereja</option>
-              <option value="rucula">Rúcula</option>
+              <option
+                v-for="semente in culturas"
+                :key="semente.id"
+                :value="semente.cultura"
+              >
+                {{ semente.cultura }}
+              </option>
             </select>
           </div>
 
@@ -89,6 +93,7 @@ const form = ref({
 });
 
 const nomeUsuario = ref('');
+const culturas = ref([]);
 
 onMounted(() => {
   const now = new Date();
@@ -96,6 +101,7 @@ onMounted(() => {
   form.value.data_plantio = now.toISOString().slice(0, 16);
 
   buscarUsuario();
+  buscarCulturas();
 });
 
 // envio para a API
@@ -125,15 +131,52 @@ const buscarUsuario = async () => {
     const funcionario = await response.json();
 
     nomeUsuario.value = funcionario.nome_completo;
-    console.log(nomeUsuario.value);
+
   } catch (error) {
     console.error(error);
     alert("Houve um erro ao buscar informações de usuário.");
   }
 };
 
-/* const registrarPlantio = async () => {
+const buscarCulturas = async () => {
   const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    alert("Token expirado, faça login novamente.");
+    throw new Error("Token expirado");
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/lotes/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const erro = await response.text();
+      console.log('Status:', response.status);
+      console.log('Erro:', erro);
+      throw new Error("Erro ao buscar culturas");
+    }
+
+    const data = await response.json();
+    culturas.value = Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(error);
+    alert("Houve um erro ao buscar culturas.");
+  }
+};
+
+
+const registrarPlantio = async () => {
+  const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    alert("Token expirado, faça login novamente.");
+    throw new Error("Token expirado");
+  }
 
   try {
     const response = await fetch('http://127.0.0.1:8000/api/lotes/', {
@@ -152,11 +195,14 @@ const buscarUsuario = async () => {
       form.value.mesa_id = '';
       form.value.lote_semente = '';
     } else {
+      const erro = await response.text();
+      console.log('Status:', response.status);
+      console.log('Erro:', erro);
       alert('Erro ao registrar o plantio.');
     }
   } catch (error) {
     console.error("Erro:", error);
     alert("Erro de conexão com o servidor.");
   }
-}; */
+};
 </script>
