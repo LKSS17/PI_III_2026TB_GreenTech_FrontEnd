@@ -25,7 +25,6 @@ const fazerLogin = async () => {
       localStorage.setItem('access_token', data.access);
 
       router.push('/dashboard');
-      alert('Login bem-sucedido!');
 
     } else {
       alert('Usuário ou senha inválidos');
