@@ -24,6 +24,10 @@ const dadosOriginais = ref({});
 
 const diasNoSistema = ref(0);
 
+const senhaAtual = ref('');
+const novaSenha = ref('');
+const confirmarSenha = ref('');
+
 // Funções
 const triggerUpload = () => {
   uploadFotoRef.value.click();
@@ -105,9 +109,66 @@ const salvarPerfil = async () => {
   console.log("Dados do perfil salvos com sucesso!");
 };
 
-const alterarSenha = () => {
-  // Lógica de validação e update de senha
-  console.log("Solicitação de alteração de senha enviada.");
+const alterarSenha = async () => {
+  const token = localStorage.getItem('access_token');
+  erroPerfil.value = ''; // Limpa os erros antigos
+  sucessoPerfil.value = '';
+
+  if (novaSenha.value !== confirmarSenha.value) {
+    erroPerfil.value = 'A nova senha e a confirmação não coincidem.';
+    return;
+  }
+
+  if (!senhaAtual.value || !novaSenha.value) {
+    erroPerfil.value = 'Preencha todos os campos de senha.';
+    return;
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/funcionarios/me/alterar-senha/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        senha_atual: senhaAtual.value,
+        nova_senha: novaSenha.value,
+        confirmar_senha: confirmarSenha.value
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      let mensagemErro = 'Erro ao alterar a senha. Verifique os dados.';
+
+      if (data.senha_atual) {
+        mensagemErro = Array.isArray(data.senha_atual) ? data.senha_atual[0] : data.senha_atual;
+      } else if (data.confirmar_senha) {
+        mensagemErro = Array.isArray(data.confirmar_senha) ? data.confirmar_senha[0] : data.confirmar_senha;
+      } else if (data.nova_senha) {
+        mensagemErro = Array.isArray(data.nova_senha) ? data.nova_senha[0] : data.nova_senha;
+      }
+
+      erroPerfil.value = mensagemErro;
+      return;
+    }
+
+    sucessoPerfil.value = data.message || 'Senha alterada com sucesso!';
+
+    senhaAtual.value = '';
+    novaSenha.value = '';
+    confirmarSenha.value = '';
+
+    setTimeout(() => {
+      sucessoPerfil.value = '';
+    }, 4000);
+
+  } catch (error) {
+    console.error(error);
+    erroPerfil.value = 'Erro de conexão com o servidor.';
+  }
 };
 
 const cancelarEdicao = () => {
@@ -274,15 +335,15 @@ onMounted(buscarUsuario)
         <form id="form-senha" class="perfil-form-grid" @submit.prevent="alterarSenha">
           <div class="form-group">
             <label>Senha Atual</label>
-            <input type="password" id="pf-senha-atual" placeholder="••••••••" />
+            <input type="password" id="pf-senha-atual" placeholder="••••••••" v-model="senhaAtual" />
           </div>
           <div class="form-group">
             <label>Nova Senha</label>
-            <input type="password" id="pf-nova-senha" placeholder="••••••••" />
+            <input type="password" id="pf-nova-senha" placeholder="••••••••" v-model="novaSenha" />
           </div>
           <div class="form-group">
             <label>Confirmar Nova Senha</label>
-            <input type="password" id="pf-confirmar-senha" placeholder="••••••••" />
+            <input type="password" id="pf-confirmar-senha" placeholder="••••••••" v-model="confirmarSenha" />
           </div>
           <div class="perfil-form-actions perfil-full-row">
             <button type="submit" class="btn-save">
