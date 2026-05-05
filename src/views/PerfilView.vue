@@ -20,6 +20,10 @@ const salvandoPerfil = ref(false);
 const erroPerfil = ref('');
 const sucessoPerfil = ref('');
 
+const dadosOriginais = ref({});
+
+const diasNoSistema = ref(0);
+
 // Funções
 const triggerUpload = () => {
   uploadFotoRef.value.click();
@@ -106,6 +110,16 @@ const alterarSenha = () => {
   console.log("Solicitação de alteração de senha enviada.");
 };
 
+const cancelarEdicao = () => {
+  nomeCompleto.value = dadosOriginais.value.nomeCompleto || '';
+  nomeUsuario.value = dadosOriginais.value.nomeUsuario || '';
+  emailUsuario.value = dadosOriginais.value.emailUsuario || '';
+  telefoneUsuario.value = dadosOriginais.value.telefoneUsuario || '';
+
+  erroPerfil.value = '';
+  sucessoPerfil.value = '';
+};
+
 const buscarUsuario = async () => {
   const token = localStorage.getItem('access_token');
 
@@ -133,6 +147,24 @@ const buscarUsuario = async () => {
     emailUsuario.value = funcionario.email;
     telefoneUsuario.value = funcionario.telefone;
     cargoUsuario.value = funcionario.cargo;
+
+    if (funcionario.data_entrada) {
+      const dataCriacao = new Date(funcionario.data_entrada);
+      const dataAtual = new Date();
+
+      const diferencaTempo = Math.abs(dataAtual - dataCriacao);
+
+      const diferencaDias = Math.floor(diferencaTempo / (1000 * 60 * 60 * 24));
+
+      diasNoSistema.value = diferencaDias;
+    }
+
+    dadosOriginais.value = {
+      nomeCompleto: funcionario.nome_completo,
+      nomeUsuario: funcionario.username,
+      emailUsuario: funcionario.email,
+      telefoneUsuario: funcionario.telefone
+    };
 
   } catch (error) {
     console.error(error);
@@ -185,7 +217,7 @@ onMounted(buscarUsuario)
             <div class="stat-label">Estufas gerenciadas</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value">42d</div>
+            <div class="stat-value">{{ diasNoSistema }}d</div>
             <div class="stat-label">No sistema</div>
           </div>
         </div>
@@ -225,7 +257,7 @@ onMounted(buscarUsuario)
           </div>
 
           <div class="perfil-form-actions">
-            <button type="reset" class="btn-outline" :disabled="salvandoPerfil">
+            <button type="button" class="btn-outline" :disabled="salvandoPerfil" @click="cancelarEdicao">
               Cancelar
             </button>
             <button type="submit" class="btn-save" :disabled="salvandoPerfil">
