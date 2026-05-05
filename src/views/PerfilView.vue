@@ -16,6 +16,10 @@ const cargoUsuario = ref('');
 const emailUsuario = ref('');
 const telefoneUsuario = ref('');
 
+const salvandoPerfil = ref(false);
+const erroPerfil = ref('');
+const sucessoPerfil = ref('');
+
 // Funções
 const triggerUpload = () => {
   uploadFotoRef.value.click();
@@ -28,8 +32,72 @@ const previewFoto = (event) => {
   }
 };
 
-const salvarPerfil = () => {
-  // Aqui vai a lógica de integração via fetch/axios com o Django REST
+const salvarPerfil = async () => {
+
+  const token = localStorage.getItem('access_token');
+
+  erroPerfil.value = '';
+  sucessoPerfil.value = '';
+
+  if (!token) {
+    erroPerfil.value = 'Você precisa estar logado para salvar o perfil.';
+    return;
+  }
+
+  if (!nomeCompleto.value.trim()) {
+    erroPerfil.value = 'O nome completo é obrigatório.';
+    return;
+  }
+
+  if (!nomeUsuario.value.trim()) {
+    erroPerfil.value = 'O nome de usuário é obrigatório.';
+    return;
+  }
+
+  salvandoPerfil.value = true;
+
+  try {
+    const payload = {
+      nome_completo: nomeCompleto.value,
+      username: nomeUsuario.value,
+      email: emailUsuario.value,
+      telefone: telefoneUsuario.value
+    };
+
+    const response = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      erroPerfil.value =
+        data?.detail ||
+        data?.message ||
+        'Não foi possível salvar o perfil. Verifique os dados e tente novamente.';
+
+      return;
+    }
+
+    nomeCompleto.value = data.nome_completo ?? nomeCompleto.value;
+    nomeUsuario.value = data.username ?? nomeUsuario.value;
+    emailUsuario.value = data.email ?? emailUsuario.value;
+    telefoneUsuario.value = data.telefone ?? telefoneUsuario.value;
+    cargoUsuario.value = data.cargo_display ?? data.cargo ?? cargoUsuario.value;
+
+    sucessoPerfil.value = 'Perfil salvo com sucesso!';
+  } catch (error) {
+    console.error(error);
+    erroPerfil.value = 'Erro de conexão com o servidor.';
+  } finally {
+    salvandoPerfil.value = false;
+  }
+
   console.log("Dados do perfil salvos com sucesso!");
 };
 
@@ -100,7 +168,7 @@ onMounted(buscarUsuario)
           />
         </div>
 
-        <h2 class="perfil-nome"> {{nomeUsuario || 'Carregando...'}} </h2>
+        <h2 class="perfil-nome"> {{ nomeUsuario || 'Carregando...' }} </h2>
 
         <span class="perfil-role-badge">
           <span class="material-symbols-outlined" style="font-size:0.9rem">verified</span>
@@ -129,6 +197,15 @@ onMounted(buscarUsuario)
           <span class="material-symbols-outlined">person</span> Dados Pessoais
         </div>
 
+        <div v-if="erroPerfil" class="perfil-message perfil-message-error">
+          <span class="material-symbols-outlined">error</span>
+          {{ erroPerfil }}
+        </div>
+        <div v-if="sucessoPerfil" class="perfil-message perfil-message-success">
+          <span class="material-symbols-outlined">check_circle</span>
+          {{ sucessoPerfil }}
+        </div>
+
         <form id="form-perfil" class="perfil-form-grid" @submit.prevent="salvarPerfil">
           <div class="form-group">
             <label>Nome Completo</label>
@@ -148,9 +225,12 @@ onMounted(buscarUsuario)
           </div>
 
           <div class="perfil-form-actions">
-            <button type="reset" class="btn-outline">Cancelar</button>
-            <button type="submit" class="btn-save">
-              <span class="material-symbols-outlined">save</span> Salvar Alterações
+            <button type="reset" class="btn-outline" :disabled="salvandoPerfil">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-save" :disabled="salvandoPerfil">
+              <span class="material-symbols-outlined">save</span>
+              {{ salvandoPerfil ? 'Salvando...' : 'Salvar Alterações' }}
             </button>
           </div>
         </form>
@@ -431,6 +511,36 @@ onMounted(buscarUsuario)
 
 .footer-banner:hover {
   opacity: 1;
+}
+
+/* --- Mensagens de Feedback (Alerta) --- */
+.perfil-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.perfil-message-success {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #2d5a27;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.perfil-message-error {
+  background-color: #ffebee;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Responsividade --- */
