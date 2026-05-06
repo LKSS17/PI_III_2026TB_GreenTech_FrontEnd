@@ -2,18 +2,17 @@
   <Sidebar />
 
   <main class="main-content">
-    <div class="weather-time-container">
-      <div class="weather-info">
-        <span class="material-symbols-outlined weather-icon">partly_cloudy_day</span>
-        <span>24°C</span>
-      </div>
-      <div class="time-info">{{ relogio }}</div>
-    </div>
 
     <header class="dash-header">
-      <h1>Estoque de Sementes 🌾</h1>
-      <p>Gestão de lotes de insumos e rastreabilidade inicial.</p>
+      <div class="header-titles">
+        <h1>Estoque de Sementes 🌾</h1>
+        <p>Gestão de lotes de insumos e rastreabilidade inicial.</p>
+      </div>
+
+      <WeatherWidget/>
+
     </header>
+
 
     <section class="registration-container-estoque">
       <div class="action-bar-estoque">
@@ -164,6 +163,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
+import WeatherWidget from "@/components/WeatherWidget.vue";
 
 const API_URL = 'http://127.0.0.1:8000/api/lotes/';
 

@@ -60,12 +60,14 @@ body {
   min-height: 100vh;
 }
 
-/* (Nota: O CSS completo da Sidebar que estava no dashboard.css deve vir aqui) */
-/* Cole aqui todo o bloco ".sidebar", ".sidebar:hover", ".sidebar-links", etc. */
 
 /* --- 4. CABEÇALHOS DE TELA --- */
 .dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 0 40px;
+  margin-top: 20px;
   margin-bottom: 20px;
 }
 

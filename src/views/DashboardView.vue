@@ -3,8 +3,13 @@
 
   <main class="main-content">
     <header class="dash-header">
-      <h1>Painel Geral 🌿</h1>
-      <p>Gerenciamento e Registro de Lotes de Rastreabilidade.</p>
+      <div class="header-titles">
+        <h1>Painel Geral 🌿</h1>
+        <p>Gerenciamento e Registro de Lotes de Rastreabilidade.</p>
+      </div>
+
+      <WeatherWidget/>
+
     </header>
 
     <section class="registration-container">
@@ -82,6 +87,7 @@
 import { ref, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
+import WeatherWidget from "@/components/WeatherWidget.vue";
 
 // Estado do formulário
 const form = ref({
