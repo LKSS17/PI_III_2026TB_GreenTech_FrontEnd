@@ -389,3 +389,184 @@ onUnmounted(() => {
   clearInterval(intervaloRelogio);
 });
 </script>
+
+<style scoped>
+/* --- WIDGET DE CLIMA E HORA --- */
+.weather-time-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  padding: 10px 20px;
+  border-radius: 15px;
+  width: fit-content;
+  margin: 20px 0 0 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-green);
+  font-weight: 700;
+  border-right: 2px solid var(--glass-border);
+  padding-right: 15px;
+}
+.weather-icon {
+  color: var(--accent-terracota);
+  font-size: 1.8rem;
+}
+.time-info {
+  color: var(--primary-dark);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* --- LAYOUT DO ESTOQUE --- */
+.registration-container-estoque {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 10px 40px 40px 40px;
+}
+
+.action-bar-estoque {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+}
+
+/* CAIXA DE BUSCA ESPECÍFICA */
+.search-box-estoque {
+  display: flex;
+  align-items: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 0 15px;
+  width: 350px;
+  transition: all 0.3s;
+}
+.search-box-estoque:focus-within {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 4px rgba(58, 90, 64, 0.1);
+}
+.search-icon {
+  color: var(--primary-green);
+}
+.search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 12px 10px;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+/* SPLIT VIEW (LISTA X DETALHES) */
+.inventory-split-view {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* COLUNA DA ESQUERDA (LISTA DE MINI CARDS) */
+.seed-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+.seed-list-container::-webkit-scrollbar { width: 6px; }
+.seed-list-container::-webkit-scrollbar-thumb { background: rgba(58, 90, 64, 0.3); border-radius: 10px; }
+
+.mini-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mini-card:hover { transform: translateX(5px); border-color: var(--primary-green); }
+.mini-card.active {
+  border-color: var(--primary-green);
+  background: rgba(255, 255, 255, 0.9);
+  border-left: 5px solid var(--primary-green);
+}
+
+.mini-card-header { display: flex; justify-content: space-between; align-items: center; }
+.mini-card-header h4 { font-family: "Poppins", sans-serif; font-size: 1rem; color: var(--primary-dark); }
+.mini-card-cultura { font-size: 0.85rem; color: var(--text-light); font-weight: 600; }
+.mini-card-qty { font-size: 0.85rem; color: var(--primary-green); font-weight: 700; margin-top: 5px; }
+
+/* COLUNA DA DIREITA (PAINEL DE DETALHES) */
+.seed-detail-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  min-height: 400px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.detail-header h2 { font-family: "Poppins", sans-serif; color: var(--primary-green); font-size: 1.8rem; display: flex; align-items: center; gap: 10px; }
+.detail-header-id { color: #777; font-weight: 600; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.detail-item {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+.detail-item label { display: block; font-size: 0.8rem; color: #777; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+.detail-item span { font-size: 1.1rem; color: var(--primary-dark); font-weight: 600; }
+.detail-item.full-width { grid-column: 1 / -1; }
+
+.qty-destaque { background: rgba(58, 90, 64, 0.1); border: 1px solid rgba(58, 90, 64, 0.2); }
+.qty-label { color: var(--primary-green) !important; }
+.qty-value { font-size: 1.5rem !important; color: var(--primary-green) !important; }
+
+/* FORMULÁRIO INTERNO */
+.form-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-actions-right { display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; }
+
+@media (max-width: 768px) {
+  .inventory-split-view { grid-template-columns: 1fr; }
+  .form-grid-layout { grid-template-columns: 1fr; }
+  .action-bar-estoque { flex-direction: column; gap: 15px; }
+  .search-box-estoque { width: 100%; }
+}
+</style>
