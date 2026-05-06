@@ -154,12 +154,16 @@
         </div>
       </div>
     </section>
+
+    <Footer/>
+
   </main>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
+import Footer from "@/components/Footer.vue";
 
 const API_URL = 'http://127.0.0.1:8000/api/lotes/';
 

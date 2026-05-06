@@ -3,6 +3,7 @@ import {onMounted, ref} from 'vue';
 import Sidebar from "@/components/Sidebar.vue";
 
 import imgBanner from '@/assets/img/Greentech_fundo.png';
+import Footer from "@/components/Footer.vue";
 
 // Referência para o input de arquivo (substitui o document.getElementById)
 const uploadFotoRef = ref(null);
@@ -354,9 +355,8 @@ onMounted(buscarUsuario)
       </div>
     </section>
 
-    <footer class="dash-footer">
-      <img src="../assets/img/banner_dashboard.png" alt="GreenTech ERP" class="footer-banner" />
-    </footer>
+    <Footer/>
+
   </main>
 </template>
 

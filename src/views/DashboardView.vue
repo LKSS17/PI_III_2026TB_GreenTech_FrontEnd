@@ -73,15 +73,15 @@
       </div>
     </section>
 
-    <footer class="dash-footer">
-      <img src="@/assets/img/banner_dashboard.png" alt="GreenTech ERP" class="footer-banner">
-    </footer>
+    <Footer/>
+
   </main>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
+import Footer from "@/components/Footer.vue";
 
 // Estado do formulário
 const form = ref({

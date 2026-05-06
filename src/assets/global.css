@@ -1,0 +1,194 @@
+/* ==========================================================================
+   GREENTECH ERP - UI KIT GLOBAL
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap");
+
+/* --- 1. VARIÁVEIS (CORES E ESPAÇAMENTOS) --- */
+:root {
+  /* Cores Principais GreenTech */
+  --primary-green: #3a5a40;
+  --primary-dark: #344e41;
+  --accent-terracota: #bc6c25;
+  --bg-creme: #f4f1ea;
+
+  /* Cores Neutras / Textos */
+  --white: #ffffff;
+  --text-main: #283618;
+  --text-light: #666666;
+  --text-white-mute: rgba(255, 255, 255, 0.7);
+  --gray-light: #dad7cd;
+
+  /* Efeitos Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
+
+  /* Feedbacks */
+  --success-bg: rgba(76, 175, 80, 0.15);
+  --success-text: #2d5a27;
+  --warning-bg: rgba(188, 108, 37, 0.15);
+  --warning-text: #bc6c25;
+  --danger-bg: #ffebee;
+  --danger-text: #d32f2f;
+}
+
+/* --- 2. RESETS BÁSICOS --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Inter, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--bg-creme);
+  color: var(--text-main);
+  display: flex;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- 3. LAYOUT GERAL E SIDEBAR --- */
+.main-content {
+  flex: 1;
+  margin-left: 100px; /* Espaço para a sidebar fechada */
+  margin-right: 15px;
+  padding: 40px 0 0 0;
+  transition: margin-left 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* (Nota: O CSS completo da Sidebar que estava no dashboard.css deve vir aqui) */
+/* Cole aqui todo o bloco ".sidebar", ".sidebar:hover", ".sidebar-links", etc. */
+
+/* --- 4. CABEÇALHOS DE TELA --- */
+.dash-header {
+  padding: 0 40px;
+  margin-bottom: 20px;
+}
+
+.dash-header h1 {
+  font-family: "Poppins", sans-serif;
+  color: var(--primary-green);
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-header p {
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+/* --- 5. CARDS GLOBAIS (O fundo de vidro) --- */
+.global-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+}
+
+/* --- 6. FORMULÁRIOS E INPUTS GLOBAIS --- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 12px 15px;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  outline: none;
+  transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 4px rgba(58, 90, 64, 0.1);
+}
+
+/* --- 7. BOTÕES GLOBAIS --- */
+.btn-save, .btn-generate {
+  background: var(--primary-green);
+  color: var(--white);
+  border: none;
+  padding: 12px 25px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.btn-save:hover, .btn-generate:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(58, 90, 64, 0.2);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary-green);
+  color: var(--primary-green);
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-outline:hover {
+  background: var(--primary-green);
+  color: var(--white);
+}
+
+.btn-delete {
+  background: var(--danger-bg);
+  border: 1px solid #ffcdd2;
+  color: var(--danger-text);
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-delete:hover {
+  background: var(--danger-text);
+  color: var(--white);
+}
+
+/* --- 8. BADGES GLOBAIS (Status) --- */
+.badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge-good { background-color: var(--success-bg); color: var(--success-text); }
+.badge-low { background-color: var(--warning-bg); color: var(--warning-text); }
+.badge-out { background-color: var(--danger-bg); color: var(--danger-text); }
