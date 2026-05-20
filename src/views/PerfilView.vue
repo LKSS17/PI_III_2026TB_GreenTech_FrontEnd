@@ -440,12 +440,6 @@ onMounted(buscarUsuario)
   font-size: 1.5rem;
 }
 
-.perfil-cargo {
-  color: #666;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-}
-
 .perfil-role-badge {
   display: inline-flex;
   align-items: center;
@@ -586,24 +580,6 @@ onMounted(buscarUsuario)
 .btn-save:hover {
   background: var(--primary-dark, #344e41);
   transform: translateY(-1px);
-}
-
-/* --- Footer --- */
-.dash-footer {
-  margin-top: 3rem;
-  text-align: center;
-}
-
-.footer-banner {
-  max-width: 100%;
-  height: auto;
-  border-radius: 12px;
-  opacity: 0.9;
-  transition: opacity 0.3s ease;
-}
-
-.footer-banner:hover {
-  opacity: 1;
 }
 
 /* --- Mensagens de Feedback (Alerta) --- */

@@ -100,13 +100,12 @@
 </template>
 
 <script setup>
+
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
 
-const router = useRouter();
 const nomeUsuario = ref('Responsável');
 
 // Dados reativos para o Dashboard (Você vai preencher isso via API depois)

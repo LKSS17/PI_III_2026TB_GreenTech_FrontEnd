@@ -215,7 +215,7 @@ const salvarNovoLote = async () => {
 
     if (resposta.ok) {
       alert("Lote de Tubetes registrado!");
-      buscarLotes();
+      await buscarLotes();
       modoCadastro.value = false;
     } else {
       alert("Erro ao cadastrar lote.");
@@ -232,7 +232,7 @@ const excluirLote = async (id) => {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    buscarLotes();
+    await buscarLotes();
   }
 };
 
@@ -240,41 +240,6 @@ onMounted(() => buscarLotes());
 </script>
 
 <style scoped>
-/* --- WIDGET DE CLIMA E HORA --- */
-.weather-time-container {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  padding: 10px 20px;
-  border-radius: 15px;
-  width: fit-content;
-  margin: 20px 0 0 40px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-.weather-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--primary-green);
-  font-weight: 700;
-  border-right: 2px solid var(--glass-border);
-  padding-right: 15px;
-}
-.weather-icon {
-  color: var(--accent-terracota);
-  font-size: 1.8rem;
-}
-.time-info {
-  color: var(--primary-dark);
-  font-family: "Poppins", sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
 /* --- LAYOUT DO ESTOQUE --- */
 .registration-container-estoque {
   display: flex;
