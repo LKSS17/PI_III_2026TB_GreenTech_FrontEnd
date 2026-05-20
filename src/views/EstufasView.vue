@@ -136,88 +136,9 @@ import Sidebar from "@/components/Sidebar.vue";
   min-height: 225px;
 }
 
-.mapa-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid rgba(0,0,0,0.05);
-  padding-bottom: 15px;
-  margin-bottom: 25px;
-}
-
 .mapa-header h3 {
   color: var(--primary-dark);
   font-family: 'Poppins', sans-serif;
-}
-
-.mapa-legenda {
-  display: flex;
-  gap: 15px;
-}
-
-.legenda-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-light);
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.dot.livre { background-color: #e0e0e0; border: 2px solid #bdbdbd; }
-.dot.cultivo { background-color: rgba(76, 175, 80, 0.2); border: 2px solid #4CAF50; }
-.dot.colheita { background-color: rgba(188, 108, 37, 0.2); border: 2px solid var(--accent-terracota); }
-
-/* GRID DE MESAS */
-.mapa-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 15px;
-}
-
-.mesa-box {
-  height: 100px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 2px solid transparent;
-}
-
-.mesa-box:hover {
-  transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.mesa-box.mesa-active {
-  border-color: var(--primary-dark);
-  box-shadow: 0 0 0 3px rgba(52, 78, 65, 0.2);
-}
-
-.mesa-id { font-weight: 800; font-size: 1.2rem; }
-.mesa-cultura { font-size: 0.8rem; font-weight: 600; text-align: center; margin-top: 5px; }
-
-/* Status das Mesas */
-.livre { background-color: #f5f5f5; border-color: #e0e0e0; color: #757575; }
-.cultivo { background-color: rgba(76, 175, 80, 0.1); border-color: #4CAF50; color: #2e7d32; }
-.colheita { background-color: rgba(188, 108, 37, 0.1); border-color: var(--accent-terracota); color: #8d4e16; }
-
-.no-mesas {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 40px;
-  color: var(--text-light);
-  font-style: italic;
 }
 
 /* LADO DIREITO: PAINEL DE DETALHES */
