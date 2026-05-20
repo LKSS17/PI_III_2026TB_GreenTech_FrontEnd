@@ -2,17 +2,13 @@
   <Sidebar />
 
   <main class="main-content">
-
     <header class="dash-header">
       <div class="header-titles">
-        <h1>Estoque de Sementes 🌾</h1>
-        <p>Gestão de lotes de insumos e rastreabilidade inicial.</p>
+        <h1>Estoque de Tubetes 🪴</h1>
+        <p>Gestão de lotes de mudas (tubetes) e rastreabilidade inicial.</p>
       </div>
-
       <WeatherWidget/>
-
     </header>
-
 
     <section class="registration-container-estoque">
       <div class="action-bar-estoque">
@@ -23,42 +19,40 @@
 
         <button class="btn-generate" @click="modoCadastro = true">
           <span class="material-symbols-outlined">add</span>
-          Novo Lote de Semente
+          Novo Lote de Tubetes
         </button>
       </div>
 
       <div class="inventory-split-view">
-
         <div class="seed-list-container">
           <div
-            v-for="semente in sementesBD"
-            :key="semente.id"
+            v-for="lote in lotesTubetes"
+            :key="lote.id"
             class="mini-card"
-            :class="{ active: sementeSelecionadaId === semente.id }"
-            @click="selecionarSemente(semente.id)"
+            :class="{ active: loteSelecionadoId === lote.id }"
+            @click="selecionarLote(lote.id)"
           >
             <div class="mini-card-header">
-              <h4>{{ semente.id }}</h4>
-              <span class="badge" :class="semente.statusClasse">{{ semente.statusTexto }}</span>
+              <h4>LOTE-{{ lote.id }}</h4>
+              <span class="badge" :class="lote.statusClasse">{{ lote.statusTexto }}</span>
             </div>
-            <div class="mini-card-cultura">{{ semente.cultura }}</div>
-            <div class="mini-card-qty">{{ semente.quantidade }}{{ semente.unidade }}</div>
+            <div class="mini-card-cultura">{{ lote.cultura }}</div>
+            <div class="mini-card-qty">{{ lote.quantidade }} {{ lote.unidade }}</div>
           </div>
         </div>
 
         <div class="seed-detail-panel">
-
           <div v-if="modoCadastro">
             <div class="detail-header">
-              <h2><span class="material-symbols-outlined">add_circle</span> Novo Lote</h2>
+              <h2><span class="material-symbols-outlined">add_circle</span> Novo Lote (Tubetes)</h2>
               <span class="detail-header-id">ID Automático gerado no envio</span>
             </div>
 
-            <form @submit.prevent="salvarNovaSemente">
+            <form @submit.prevent="salvarNovoLote">
               <div class="form-grid-layout">
                 <div class="form-group full-width">
-                  <label>Cultura / Tipo</label>
-                  <input type="text" v-model="novoLote.cultura" required>
+                  <label>Cultura (ID)</label>
+                  <input type="number" v-model="novoLote.cultura_id" placeholder="ID da Cultura" required>
                 </div>
                 <div class="form-group full-width">
                   <label>Fornecedor</label>
@@ -66,28 +60,26 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Data de Plantio</label>
-                  <input type="date" v-model="novoLote.dataPlantio" required>
+                  <label>Data de Recebimento</label>
+                  <input type="date" v-model="novoLote.data_plantio" required>
                 </div>
 
                 <div class="form-group">
-                  <label>Validade</label>
-                  <input type="date" v-model="novoLote.validade" required>
+                  <label>Validade Estimada</label>
+                  <input type="date" v-model="novoLote.validade">
                 </div>
 
                 <div class="form-group">
-                  <label>Custo Unitário</label>
-                  <input type="text" v-model="novoLote.custo" required>
-                </div>
-
-                <div class="form-group">
-                  <label>Quantidade</label>
+                  <label>Quantidade de Tubetes</label>
                   <input type="number" v-model="novoLote.quantidade" required>
                 </div>
 
                 <div class="form-group">
-                  <label>Custo Total</label>
-                  <input type="number" step="0.01" v-model="novoLote.custoTotal" required>
+                  <label>Unidade</label>
+                  <select v-model="novoLote.unidade" required>
+                    <option value="unid.">Unidades (Tubetes)</option>
+                    <option value="bandejas">Bandejas</option>
+                  </select>
                 </div>
 
                 <div class="form-group">
@@ -95,299 +87,156 @@
                   <select v-model="novoLote.status" required>
                     <option value="ES">Em Estoque</option>
                     <option value="BX">Estoque Baixo</option>
-                    <option value="ES">Disponível</option>
+                    <option value="DI">Disponível</option>
                   </select>
                 </div>
 
                 <div class="form-group">
-                  <label>ID da Estufa</label>
-                  <input type="number" v-model="novoLote.estufaId" required>
-                </div>
-                <div class="form-group">
-                  <label>Unidade</label>
-                  <select v-model="novoLote.unidade" required>
-                    <option value="g">Gramas (g)</option>
-                    <option value="kg">Quilos (kg)</option>
-                    <option value="unid.">Unidades (unid.)</option>
-                  </select>
+                  <label>Mesa Destino (ID)</label>
+                  <input type="number" v-model="novoLote.mesa_id" placeholder="Ex: 1" required>
                 </div>
               </div>
 
               <div class="form-actions-right">
                 <button type="button" class="btn-outline" @click="modoCadastro = false">Cancelar</button>
-                <button type="submit" class="btn-save">Registrar</button>
+                <button type="submit" class="btn-save">Registrar Tubetes</button>
               </div>
             </form>
           </div>
 
-          <div v-else-if="sementeSelecionada">
+          <div v-else-if="loteSelecionado">
             <div class="detail-header">
-              <h2><span class="material-symbols-outlined">qr_code_2</span> {{ sementeSelecionada.id }}</h2>
-              <span class="badge badge-detail" :class="sementeSelecionada.statusClasse">{{ sementeSelecionada.statusTexto }}</span>
+              <h2><span class="material-symbols-outlined">qr_code_2</span> LOTE-{{ loteSelecionado.id }}</h2>
+              <span class="badge badge-detail" :class="loteSelecionado.statusClasse">{{ loteSelecionado.statusTexto }}</span>
             </div>
 
             <div class="detail-grid">
               <div class="detail-item">
                 <label>Cultura</label>
-                <span>{{ sementeSelecionada.cultura }}</span>
+                <span>{{ loteSelecionado.cultura }}</span>
               </div>
               <div class="detail-item">
                 <label>Fornecedor</label>
-                <span>{{ sementeSelecionada.fornecedor }}</span>
+                <span>{{ loteSelecionado.fornecedor }}</span>
               </div>
               <div class="detail-item">
-                <label>Validade</label>
-                <span>{{ sementeSelecionada.validade }}</span>
+                <label>Validade Estimada</label>
+                <span>{{ loteSelecionado.validade || 'N/A' }}</span>
               </div>
               <div class="detail-item full-width qty-destaque">
-                <label class="qty-label">Em Estoque</label>
-                <span class="qty-value">{{ sementeSelecionada.quantidade }} {{ sementeSelecionada.unidade }}</span>
+                <label class="qty-label">Tubetes em Estoque</label>
+                <span class="qty-value">{{ loteSelecionado.quantidade }} {{ loteSelecionado.unidade }}</span>
               </div>
             </div>
 
             <div class="form-actions">
-              <button class="btn-delete" @click="excluirSemente(sementeSelecionada.id)">Excluir Lote</button>
+              <button class="btn-delete" @click="excluirLote(loteSelecionado.id)">Descartar Lote</button>
             </div>
           </div>
-
         </div>
       </div>
     </section>
 
     <Footer/>
-
   </main>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
 
 const API_URL = 'http://127.0.0.1:8000/api/lotes/';
 
-const sementesBD = ref([]);
-
-const sementeSelecionadaId = ref(null);
-const modoCadastro = ref(null);
-const salvando = ref(null);
+const lotesTubetes = ref([]);
+const loteSelecionadoId = ref(null);
+const modoCadastro = ref(false);
 
 const novoLote = ref({
-  cultura: '',
-  fornecedor: '',
-  dataPlantio: '',
-  validade: '',
-  custo: '',
+  cultura_id: '',
+  mesa_id: '',
+  data_plantio: '',
   status: 'ES',
-  custoTotal: '',
-  estufaId: '',
   quantidade: '',
-  unidade: 'g'
+  unidade: 'unid.',
+  fornecedor: '',
+  validade: ''
 });
 
-const sementeSelecionada = computed(() => {
-  return sementesBD.value.find(s => s.id === sementeSelecionadaId.value);
+const loteSelecionado = computed(() => {
+  return lotesTubetes.value.find(l => l.id === loteSelecionadoId.value);
 });
 
-// METODOS
-const buscarSementes = async () => {
-  try{
+const buscarLotes = async () => {
+  try {
     const token = localStorage.getItem('access_token');
-    if (!token) {
-      alert('Sessão expirada. Faça login novamente.');
-      return;
-    }
+    if (!token) return;
 
     const resposta = await fetch(API_URL, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    if (!resposta.ok) {
-      const erro = await resposta.text();
-      console.log('Status:', resposta.status);
-      console.log('Erro do backend:', erro);
-
-      alert("Houve algum erro ao buscar as sementes.");
-
-      throw new Error('Erro ao buscar sementes');
-    }
-
-    const dados = await resposta.json();
-
-    sementesBD.value = dados.map((semente) => {
-      const statusFormatado = formatarStatus(semente.status);
-
-      return {
-        id: semente.id,
-        cultura: semente.cultura,
-        fornecedor: semente.fornecedor,
-        validade: semente.validade,
-        custo: semente.custo,
-        quantidade: semente.quantidade,
-        unidade: semente.unidade,
-        statusClasse: statusFormatado.statusClasse,
-        statusTexto: statusFormatado.statusTexto
-      };
-    });
-
-    if (sementesBD.value.length > 0) {
-      sementeSelecionadaId.value = sementesBD.value[0].id;
+    if (resposta.ok) {
+      const dados = await resposta.json();
+      lotesTubetes.value = dados.map(lote => {
+        const statusFormatado = formatarStatus(lote.status);
+        return { ...lote, ...statusFormatado };
+      });
+      if (lotesTubetes.value.length > 0) loteSelecionadoId.value = lotesTubetes.value[0].id;
     }
   } catch (error) {
-    console.error(error);
-    alert('Não foi possível carregar os lotes de sementes.');
+    console.error("Erro ao buscar tubetes:", error);
   }
 };
 
-const selecionarSemente = (id) => {
-  sementeSelecionadaId.value = id;
+const selecionarLote = (id) => {
+  loteSelecionadoId.value = id;
   modoCadastro.value = false;
 };
 
 const formatarStatus = (status) => {
-  if (status === 'BX') {
-    return {
-      statusClasse: 'badge-low',
-      statusTexto: 'Estoque Baixo'
-    };
-  }
-
-  return {
-    statusClasse: 'badge-good',
-    statusTexto: 'Em Estoque'
-  };
+  if (status === 'BX') return { statusClasse: 'badge-low', statusTexto: 'Estoque Baixo' };
+  if (status === 'ES' || status === 'DI') return { statusClasse: 'badge-good', statusTexto: 'Disponível' };
+  return { statusClasse: 'badge-good', statusTexto: status };
 };
 
-const limparFormulario = () => {
-  novoLote.value = {
-    cultura: '',
-    fornecedor: '',
-    dataPlantio: '',
-    validade: '',
-    custo: '',
-    status: 'ES',
-    custoTotal: '',
-    estufaId: '',
-    quantidade: '',
-    unidade: 'g'
-  };
-};
-
-const salvarNovaSemente = async () => {
+const salvarNovoLote = async () => {
   try {
-    salvando.value = true;
-
     const token = localStorage.getItem('access_token');
-
-    if (!token) {
-      alert('Sessão expirada. Faça login novamente.');
-      return;
-    }
-
-    const payload = {
-      estufa: Number(novoLote.value.estufaId),
-      cultura: novoLote.value.cultura,
-      fornecedor: novoLote.value.fornecedor,
-      data_plantio: novoLote.value.dataPlantio,
-      validade: novoLote.value.validade,
-      status: novoLote.value.status,
-      custo: Number(String(novoLote.value.custo).replace(',', '.')),
-      custo_total: Number(novoLote.value.custoTotal),
-      quantidade: Number(novoLote.value.quantidade),
-      unidade: novoLote.value.unidade
-    };
-
-    const resposta = await fetch('http://127.0.0.1:8000/api/lotes/', {
+    const resposta = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(novoLote.value)
     });
 
-    if (!resposta.ok) {
-      const erro = await resposta.text();
-      console.log('Status:', resposta.status);
-      console.log('Erro do backend:', erro);
-      throw new Error('Erro ao cadastrar nova semente');
+    if (resposta.ok) {
+      alert("Lote de Tubetes registrado!");
+      buscarLotes();
+      modoCadastro.value = false;
+    } else {
+      alert("Erro ao cadastrar lote.");
     }
-
-    const sementeCadastrada = await resposta.json();
-
-    sementesBD.value.unshift({
-      id: sementeCadastrada.id,
-      cultura: sementeCadastrada.cultura,
-      fornecedor: sementeCadastrada.fornecedor,
-      validade: sementeCadastrada.validade,
-      custo: sementeCadastrada.custo,
-      quantidade: sementeCadastrada.quantidade,
-      unidade: sementeCadastrada.unidade,
-      statusClasse: sementeCadastrada.status === 'BX' ? 'badge-low' : 'badge-good',
-      statusTexto: sementeCadastrada.status === 'BX' ? 'Estoque Baixo' : 'Em Estoque'
-    });
-
-    limparFormulario();
-    selecionarSemente(sementeCadastrada.id);
   } catch (error) {
     console.error(error);
-    alert('Não foi possível cadastrar o lote de semente.');
-  } finally {
-    salvando.value = false;
   }
 };
 
-const excluirSemente = (id) => {
-
-  const token = localStorage.getItem('access_token');
-
-  if (!token) {
-    alert('Sessão expirada. Faça login novamente.');
-    return;
-  }
-
-  if (confirm(`Tem certeza que deseja excluir o lote ${id}?`)) {
-    fetch(`http://127.0.0.1:8000/api/lotes/${id}/`, {
+const excluirLote = async (id) => {
+  if (confirm(`Descartar o lote de tubetes ${id}?`)) {
+    const token = localStorage.getItem('access_token');
+    await fetch(`${API_URL}${id}/`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          alert("Houve algum erro ao excluir a semente.")
-          throw new Error('Erro ao excluir semente');
-        } else {
-          sementesBD.value = sementesBD.value.filter(s => s.id !== id);
-          if (sementesBD.value.length > 0) {
-            selecionarSemente(sementesBD.value[0].id);
-          } else {
-            sementeSelecionadaId.value = null;
-          }
-        }
-      })
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    buscarLotes();
   }
-}
+};
 
-// RELÓGIO
-const relogio = ref('');
-let intervaloRelogio;
-
-onMounted(() => {
-  buscarSementes();
-
-  intervaloRelogio = setInterval(() => {
-    relogio.value = new Date().toLocaleTimeString("pt-BR", { hour12: false });
-  }, 1000);
-});
-
-onUnmounted(() => {
-  clearInterval(intervaloRelogio);
-});
+onMounted(() => buscarLotes());
 </script>
 
 <style scoped>

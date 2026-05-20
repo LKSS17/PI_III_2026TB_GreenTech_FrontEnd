@@ -1,58 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue';
-import Sidebar from "@/components/Sidebar.vue";
 import Footer from "@/components/Footer.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
+import Sidebar from "@/components/Sidebar.vue";
 
-// --- 1. ESTADOS E DADOS ---
-const estufaSelecionadaId = ref('E01');
-const mesaSelecionada = ref(null);
-
-// Dados simulados de estufas e suas mesas
-const estufasData = ref([
-  { id: 'E01', nome: 'Estufa 01' },
-  { id: 'E02', nome: 'Estufa 02' },
-  { id: 'E03', nome: 'Estufa 03' }
-]);
-
-// Dados simulados de mesas (status possíveis: 'livre', 'cultivo', 'colheita')
-const mesasData = ref({
-  'E01': [
-    { id: 'M01', cultura: 'Alface Crespa', status: 'cultivo', plantio: '10/04/2026', colheita: '25/05/2026' },
-    { id: 'M02', cultura: 'Rúcula', status: 'colheita', plantio: '20/03/2026', colheita: '10/05/2026' },
-    { id: 'M03', cultura: '-', status: 'livre', plantio: '-', colheita: '-' },
-    { id: 'M04', cultura: 'Alface Americana', status: 'cultivo', plantio: '15/04/2026', colheita: '30/05/2026' },
-    { id: 'M05', cultura: '-', status: 'livre', plantio: '-', colheita: '-' },
-    { id: 'M06', cultura: 'Cebolinha', status: 'colheita', plantio: '15/03/2026', colheita: '08/05/2026' },
-  ],
-  'E02': [
-    { id: 'M01', cultura: 'Manjericão', status: 'cultivo', plantio: '05/04/2026', colheita: '15/06/2026' },
-    { id: 'M02', cultura: '-', status: 'livre', plantio: '-', colheita: '-' },
-  ],
-  'E03': [] // Estufa vazia
-});
-
-// --- 2. LÓGICA COMPUTADA ---
-const mesasDaEstufaAtual = computed(() => {
-  return mesasData.value[estufaSelecionadaId.value] || [];
-});
-
-const estufaAtualNome = computed(() => {
-  const estufa = estufasData.value.find(e => e.id === estufaSelecionadaId.value);
-  return estufa ? estufa.nome : '';
-});
-
-// --- 3. FUNÇÕES ---
-const selecionarEstufa = (id) => {
-  estufaSelecionadaId.value = id;
-  mesaSelecionada.value = null; // Reseta o painel lateral ao trocar de estufa
-};
-
-const selecionarMesa = (mesa) => {
-  mesaSelecionada.value = mesa;
-};
 </script>
-
 <template>
   <Sidebar />
 
@@ -61,9 +12,8 @@ const selecionarMesa = (mesa) => {
     <header class="dash-header">
       <div class="header-titles">
         <h1>Estufas e Mesas 🌿</h1>
-        <p>Gestão espacial do cultivo — visualização e ocupação de mesas por estufa.</p>
+        <p>Gestão espacial — visualização do desenvolvimento dos tubetes por mesa.</p>
       </div>
-
       <WeatherWidget/>
     </header>
 
@@ -80,56 +30,30 @@ const selecionarMesa = (mesa) => {
     </div>
 
     <section class="estufas-split-view">
-
       <div class="mapa-container">
-        <div class="mapa-header">
-          <h3>{{ estufaAtualNome }} — Planta Baixa</h3>
-          <div class="mapa-legenda">
-            <span class="legenda-item"><span class="dot livre"></span> Livre</span>
-            <span class="legenda-item"><span class="dot cultivo"></span> Em Cultivo</span>
-            <span class="legenda-item"><span class="dot colheita"></span> Próx. Colheita</span>
-          </div>
-        </div>
-
-        <div class="mapa-grid">
-          <div
-            v-for="mesa in mesasDaEstufaAtual"
-            :key="mesa.id"
-            class="mesa-box"
-            :class="[mesa.status, { 'mesa-active': mesaSelecionada?.id === mesa.id }]"
-            @click="selecionarMesa(mesa)"
-          >
-            <span class="mesa-id">{{ mesa.id }}</span>
-            <span class="mesa-cultura">{{ mesa.cultura !== '-' ? mesa.cultura : 'Vazia' }}</span>
-          </div>
-
-          <div v-if="mesasDaEstufaAtual.length === 0" class="no-mesas">
-            Nenhuma mesa cadastrada nesta estufa.
-          </div>
-        </div>
       </div>
 
       <div class="mesa-detalhe-panel">
         <div v-if="!mesaSelecionada" class="detalhe-placeholder">
           <span class="material-symbols-outlined icon-big">touch_app</span>
-          <p>Selecione uma mesa no mapa para ver ou editar detalhes</p>
+          <p>Selecione uma mesa no mapa para ver o desenvolvimento dos tubetes</p>
         </div>
 
         <div v-else class="detalhe-content">
           <div class="detalhe-header">
             <h2>Mesa {{ mesaSelecionada.id }}</h2>
             <span class="badge" :class="'badge-' + mesaSelecionada.status">
-              {{ mesaSelecionada.status === 'livre' ? 'Livre' : (mesaSelecionada.status === 'cultivo' ? 'Em Cultivo' : 'Próxima da Colheita') }}
+              {{ mesaSelecionada.status === 'livre' ? 'Livre' : (mesaSelecionada.status === 'cultivo' ? 'Em Desenvolvimento' : 'Pronta p/ Colheita') }}
             </span>
           </div>
 
           <div class="detalhe-infos">
             <div class="info-group">
-              <label>Cultura Atual</label>
+              <label>Tubetes (Cultura)</label>
               <strong>{{ mesaSelecionada.cultura }}</strong>
             </div>
             <div class="info-group">
-              <label>Data de Plantio</label>
+              <label>Data de Alocação</label>
               <span>{{ mesaSelecionada.plantio }}</span>
             </div>
             <div class="info-group">
@@ -140,15 +64,17 @@ const selecionarMesa = (mesa) => {
 
           <div class="detalhe-actions">
             <button v-if="mesaSelecionada.status === 'livre'" class="btn-save full-width">
-              <span class="material-symbols-outlined">psychiatry</span> Iniciar Plantio
+              <span class="material-symbols-outlined">local_florist</span> Alocar Tubetes Aqui
+            </button>
+            <button v-else-if="mesaSelecionada.status === 'colheita'" class="btn-save full-width" style="background: var(--accent-terracota);">
+              <span class="material-symbols-outlined">agriculture</span> Registrar Colheita
             </button>
             <button v-else class="btn-outline full-width">
-              <span class="material-symbols-outlined">edit</span> Editar Lote
+              <span class="material-symbols-outlined">edit</span> Atualizar Status
             </button>
           </div>
         </div>
       </div>
-
     </section>
 
     <Footer/>
