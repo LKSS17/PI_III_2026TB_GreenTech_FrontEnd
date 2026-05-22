@@ -4,7 +4,7 @@
   <main class="main-content">
     <header class="dash-header">
       <div class="header-titles">
-        <h1>Painel Geral 🌿</h1>
+        <h1>Painel Geral </h1>
         <p>Bem-vindo, {{ nomeUsuario }}. Aqui está o resumo da sua produção hoje.</p>
       </div>
       <WeatherWidget/>
