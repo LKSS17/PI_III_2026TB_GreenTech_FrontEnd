@@ -241,7 +241,7 @@ onMounted(buscarUsuario)
 
   <main class="main-content">
     <header class="dash-header">
-      <h1>Meu Perfil 👤</h1>
+      <h1>Meu Perfil</h1>
       <p>Gerencie suas informações pessoais e credenciais de acesso.</p>
     </header>
 
