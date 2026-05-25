@@ -29,18 +29,11 @@
           <span class="link-text">Gêmeo Virtual 3D</span>
         </router-link>
       </li>
-      <li>
-        <router-link to="/safras" active-class="active">
-          <span class="material-symbols-outlined">grass</span>
-          <span class="link-text">Safras</span>
-        </router-link>
-      </li>
-      <li>
-        <router-link to="/plantacoes" active-class="active">
-          <span class="material-symbols-outlined">agriculture</span>
-          <span class="link-text">Plantações</span>
-        </router-link>
-      </li>
+
+      <li><router-link to="/culturas" active-class="active"><span class="material-symbols-outlined">science</span><span class="link-text">Catálogo de Culturas</span></router-link></li>
+      <li><router-link to="/estoque" active-class="active"><span class="material-symbols-outlined">inventory_2</span><span class="link-text">Estoque / Insumos</span></router-link></li>
+      <li><router-link to="/lotes" active-class="active"><span class="material-symbols-outlined">psychiatry</span><span class="link-text">Lotes de Plantio</span></router-link></li>
+      <li><router-link to="/colheitas" active-class="active"><span class="material-symbols-outlined">agriculture</span><span class="link-text">Registro de Colheita</span></router-link></li>
 
       <!-- Monitoramento -->
       <li class="section-label">
