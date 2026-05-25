@@ -245,6 +245,10 @@ onMounted(buscarUsuario)
 }
 .sidebar-links li a:hover,
 
+.sidebar-links li a.active {
+  background-color: var(--accent-terracota);
+  color: #fff;
+}
 .sidebar-links li a span.material-symbols-outlined {
   font-size: 1.5rem;
   min-width: 45px;
