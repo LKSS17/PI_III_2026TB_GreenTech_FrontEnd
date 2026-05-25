@@ -6,20 +6,64 @@
     </div>
 
     <ul class="sidebar-links">
-      <h4>
+      <!-- Visão Geral -->
+      <li class="section-label">
         <div class="menu-separator"></div>
-        <span>Monitoramento</span>
-      </h4>
+        <span>Visão Geral</span>
+      </li>
       <li>
         <router-link to="/dashboard" active-class="active">
           <span class="material-symbols-outlined">dashboard</span>
           <span class="link-text">Painel Geral</span>
         </router-link>
       </li>
+      <!-- Gestão Agrícola (fluxo: Safra → Plantação → Sensores) -->
+      <li class="section-label">
+        <div class="menu-separator"></div>
+        <span>Gestão Agrícola</span>
+      </li>
+
+      <li>
+        <router-link to="/layout" active-class="active">
+          <span class="material-symbols-outlined">view_in_ar</span>
+          <span class="link-text">Gêmeo Virtual 3D</span>
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/safras" active-class="active">
+          <span class="material-symbols-outlined">grass</span>
+          <span class="link-text">Safras</span>
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/plantacoes" active-class="active">
+          <span class="material-symbols-outlined">agriculture</span>
+          <span class="link-text">Plantações</span>
+        </router-link>
+      </li>
+
+      <!-- Monitoramento -->
+      <li class="section-label">
+        <div class="menu-separator"></div>
+        <span>Monitoramento</span>
+      </li>
+      <li>
+        <router-link to="/alertas" active-class="active">
+          <span class="material-symbols-outlined">notifications_active</span>
+          <span class="link-text">Alertas</span>
+          <span v-if="alertasAtivos > 0" class="badge-count">{{ alertasAtivos }}</span>
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/historico" active-class="active">
+          <span class="material-symbols-outlined">history</span>
+          <span class="link-text">Histórico</span>
+        </router-link>
+      </li>
       <li>
         <router-link to="/sensores" active-class="active">
-          <span class="material-symbols-outlined">thermostat</span>
-          <span class="link-text">Sensores IoT</span>
+          <span class="material-symbols-outlined">detector</span>
+          <span class="link-text">Sensores</span>
         </router-link>
       </li>
       <li>
@@ -29,33 +73,11 @@
         </router-link>
       </li>
 
-      <h4>
-        <div class="menu-separator"></div>
-        <span>Rastreabilidade</span>
-      </h4>
-      <li>
-        <router-link to="/estoque" active-class="active">
-          <span class="material-symbols-outlined">inventory_2</span>
-          <span class="link-text">Estoque Sementes</span>
-        </router-link>
-      </li>
-      <li>
-        <router-link to="/estufas" active-class="active">
-          <span class="material-symbols-outlined">agriculture</span>
-          <span class="link-text">Estufas e Mesas</span>
-        </router-link>
-      </li>
-      <li>
-        <router-link to="/lotes" active-class="active">
-          <span class="material-symbols-outlined">qr_code_2</span>
-          <span class="link-text">Lotes e IDs</span>
-        </router-link>
-      </li>
-
-      <h4>
+      <!-- Conta -->
+      <li class="section-label">
         <div class="menu-separator"></div>
         <span>Conta</span>
-      </h4>
+      </li>
       <li>
         <router-link to="/perfil" active-class="active">
           <span class="material-symbols-outlined">account_circle</span>
@@ -78,7 +100,7 @@
 
     <div class="user-account">
       <div class="user-profile">
-        <img src="@/assets/img/Greentech_fundo.png" alt="Perfil" />
+        <div class="user-avatar">{{ iniciais }}</div>
         <div class="user-detail">
           <h3>{{ nomeUsuario || 'Usuário' }}</h3>
           <span>{{ cargoUsuario || 'GreenTech' }}</span>
@@ -88,210 +110,205 @@
   </aside>
 </template>
 
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const nomeUsuario  = ref('')
+const cargoUsuario = ref('')
+const alertasAtivos = ref(0) // Buscar via API futuramente
+
+const iniciais = computed(() => {
+  if (!nomeUsuario.value) return 'GT'
+  return nomeUsuario.value
+    .split(' ')
+    .slice(0, 2)
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+})
+
+const buscarUsuario = async () => {
+  const token = localStorage.getItem('access_token')
+  if (!token) return
+  try {
+    const res = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (!res.ok) return
+    const f = await res.json()
+    nomeUsuario.value  = f.nome_completo
+    cargoUsuario.value = f.cargo_display || f.cargo
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const fazerLogout = () => {
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
+  router.replace('/')
+}
+
+onMounted(buscarUsuario)
+</script>
+
 <style scoped>
-/* --- SIDEBAR --- */
 .sidebar {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   height: 100vh;
   width: 85px;
   display: flex;
   flex-direction: column;
   background-color: var(--primary-green);
   padding: 25px 15px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   overflow: hidden;
 }
 
-.sidebar:hover {
-  width: 260px;
-}
+.sidebar:hover { width: 260px; }
 
-.sidebar .sidebar-header {
+/* Header */
+.sidebar-header {
   display: flex;
   align-items: center;
   margin-bottom: 30px;
   padding-left: 5px;
+  flex-shrink: 0;
 }
-
-.sidebar-icon {
-  color: #bc6c25;
-  font-size: 2rem;
-}
-
-.sidebar .sidebar-header h2 {
-  color: var(--white);
-  font-family: "Poppins", sans-serif;
+.sidebar-icon { color: var(--accent-terracota); font-size: 2rem; }
+.sidebar-header h2 {
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.3rem;
   font-weight: 700;
   white-space: nowrap;
-  margin-left: 20px;
+  margin-left: 18px;
   opacity: 0;
   transition: opacity 0.3s;
 }
+.sidebar:hover .sidebar-header h2 { opacity: 1; }
 
-.sidebar:hover .sidebar-header h2 {
-  opacity: 1;
-}
-
+/* Links */
 .sidebar-links {
   list-style: none;
   flex: 1;
   overflow-y: auto;
   scrollbar-width: none;
 }
+.sidebar-links::-webkit-scrollbar { display: none; }
 
-.sidebar-links::-webkit-scrollbar {
-  display: none;
-}
-
-.sidebar-links h4 {
-  color: var(--text-light);
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  margin: 25px 0 10px;
+/* Section labels */
+.section-label {
   position: relative;
-  white-space: nowrap;
+  margin: 22px 0 8px;
+  height: 16px;
 }
-
-.sidebar-links h4 span {
+.section-label span {
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
   opacity: 0;
-  margin-left: 10px;
+  transition: opacity 0.3s;
+  padding-left: 12px;
+}
+.sidebar:hover .section-label span { opacity: 1; }
+
+.menu-separator {
+  position: absolute;
+  left: 0; top: 50%;
+  width: 45px;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
   transition: opacity 0.3s;
 }
+.sidebar:hover .menu-separator { opacity: 0; }
 
-.sidebar:hover .sidebar-links h4 span {
-  opacity: 1;
-}
-
-.sidebar-links .menu-separator {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  height: 1px;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.sidebar:hover .sidebar-links .menu-separator {
-  display: none;
-}
-
+/* Nav items */
 .sidebar-links li a {
   display: flex;
   align-items: center;
-  color: var(--white);
+  color: rgba(255,255,255,0.85);
   text-decoration: none;
-  padding: 12px 10px;
-  margin: 5px 0;
+  padding: 10px 10px;
+  margin: 3px 0;
   border-radius: 10px;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  position: relative;
 }
-
-.sidebar-links li a.active,
-.sidebar-links li a:hover {
-  background-color: var(--accent-terracota);
-}
+.sidebar-links li a:hover,
 
 .sidebar-links li a span.material-symbols-outlined {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   min-width: 45px;
   text-align: center;
+  flex-shrink: 0;
 }
-
-.sidebar-links li a .link-text {
+.link-text {
   opacity: 0;
-  margin-left: 10px;
+  margin-left: 8px;
   font-weight: 500;
+  font-size: 0.95rem;
   transition: opacity 0.3s;
   white-space: nowrap;
 }
+.sidebar:hover .link-text { opacity: 1; }
 
-.sidebar:hover .sidebar-links li a .link-text {
-  opacity: 1;
+/* Badge de contagem (alertas) */
+.badge-count {
+  position: absolute;
+  right: 10px;
+  background: #ef5350;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 6px;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
+.sidebar:hover .badge-count { opacity: 1; }
 
+/* User account footer */
 .user-account {
   margin-top: auto;
   padding: 15px 5px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+.user-profile {
   display: flex;
   align-items: center;
+  gap: 0;
 }
-
-.user-profile img {
+.user-avatar {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  border: 2px solid var(--accent-terracota);
-  object-fit: cover;
+  background: var(--accent-terracota);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
 }
-
 .user-detail {
-  margin-left: 15px;
+  margin-left: 14px;
   opacity: 0;
   transition: opacity 0.3s;
   white-space: nowrap;
 }
-
-.sidebar:hover .user-detail {
-  opacity: 1;
-}
-
-.user-detail h3 {
-  color: var(--white);
-  font-size: 0.95rem;
-}
-
+.sidebar:hover .user-detail { opacity: 1; }
+.user-detail h3 { color: #fff; font-size: 0.9rem; font-weight: 600; }
+.user-detail span { color: rgba(255,255,255,0.55); font-size: 0.78rem; }
 </style>
-
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-
-const nomeUsuario = ref('');
-const cargoUsuario = ref('');
-
-const buscarUsuario = async () => {
-  const token = localStorage.getItem('access_token');
-
-  if (!token) {
-    return;
-  }
-
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      return;
-    }
-
-    const funcionario = await response.json();
-
-    nomeUsuario.value = funcionario.nome_completo;
-    cargoUsuario.value = funcionario.cargo_display;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const fazerLogout = () => {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-
-  router.replace('/');
-};
-
-onMounted(() => {
-  buscarUsuario();
-});
-</script>
