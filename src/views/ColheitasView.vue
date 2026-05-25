@@ -70,10 +70,13 @@ const lotesAtivos = ref([]);
 const form = ref({ lote: '', quantidade_colhida: 0, quantidade_perda: 0, motivo_perda: '', observacoes: '' });
 
 const carregarLotes = async () => {
-  const res = await fetch('http://127.0.0.1:8000/api/lotePlantio/', { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } });
+  const res = await fetch('http://127.0.0.1:8000/api/lotes/', {
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+  });
+
   if (res.ok) {
     const todos = await res.json();
-    lotesAtivos.value = todos.filter(l => l.status !== 'Colhido'); // Traz só o que ainda não foi colhido
+    lotesAtivos.value = todos.filter(l => l.status !== 'CO' && l.status !== 'PE');
   }
 };
 

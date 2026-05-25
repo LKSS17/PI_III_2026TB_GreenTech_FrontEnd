@@ -33,7 +33,7 @@
             @click="selecionar(m)"
           >
             <div class="mini-card-header">
-              <h4>LOTE #{{ m.lote }}</h4>
+              <h4>LOTE #{{ m.lote_id }}</h4>
               <span class="badge" :class="m.tipo_movimentacao === 'Entrada' ? 'badge-good' : 'badge-out'">
                 {{ m.tipo_movimentacao }}
               </span>
@@ -55,7 +55,7 @@
 
             <div class="form-group">
               <label>Lote Alvo</label>
-              <select v-model="form.lote" required>
+              <select v-model="form.lote_id" required>
                 <option value="" disabled>Selecione o lote...</option>
                 <option v-for="l in lotes" :key="l.id" :value="l.id">Lote #{{ l.id }} (Mesa {{ l.mesa }})</option>
               </select>
@@ -111,7 +111,7 @@
             </div>
 
             <div class="detail-grid">
-              <div class="detail-item"><label>Lote Vinculado</label><span>LOTE #{{ movimentacaoSelecionada.lote }}</span></div>
+              <div class="detail-item"><label>Lote Vinculado</label><span>LOTE #{{ movimentacaoSelecionada.lote_id }}</span></div>
               <div class="detail-item"><label>Data/Hora do Registro</label><span>{{ formatarData(movimentacaoSelecionada.data_movimentacao) }}</span></div>
               <div class="detail-item full-width"><label>Motivo / Justificativa</label><span>{{ movimentacaoSelecionada.motivo }}</span></div>
 
@@ -158,7 +158,7 @@ const modoCadastro = ref(false);
 const busca = ref('');
 
 const form = ref({
-  lote: '',
+  lote_id: '',
   tipo_movimentacao: 'Entrada',
   quantidade: 0.0,
   unidade: 'Unidades',
@@ -167,10 +167,11 @@ const form = ref({
 });
 
 const movimentacoesFiltradas = computed(() => {
-  return movimentacoes.value.filter(m =>
-    m.lote.toString().includes(busca.value) ||
-    m.motivo.toLowerCase().includes(busca.value.toLowerCase())
-  );
+  return movimentacoes.value.filter(m => {
+    const matchLote = m.lote_id && m.lote_id.toString().includes(busca.value);
+    const matchMotivo = m.motivo && m.motivo.toLowerCase().includes(busca.value.toLowerCase());
+    return matchLote || matchMotivo;
+  });
 });
 
 const carregarDadosEstoque = async () => {
@@ -180,7 +181,7 @@ const carregarDadosEstoque = async () => {
   try {
     const [resEstoque, resLotes] = await Promise.all([
       fetch('http://127.0.0.1:8000/api/estoque/', { headers }),
-      fetch('http://127.0.0.1:8000/api/lotePlantio/', { headers })
+      fetch('http://127.0.0.1:8000/api/lotes/', { headers })
     ]);
 
     if (resEstoque.ok) movimentacoes.value = await resEstoque.json();
