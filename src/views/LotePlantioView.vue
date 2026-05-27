@@ -33,7 +33,7 @@
           >
             <div class="mini-card-header">
               <h4>LOTE #{{ l.id }}</h4>
-              <span class="badge badge-good">{{ l.status }}</span>
+              <span class="badge badge-good">{{ traduzirStatus(l.status)}}</span>
             </div>
             <div class="mini-card-cultura">Fornecedor: {{ l.fornecedor }}</div>
             <div class="mini-card-qty"><span class="material-symbols-outlined" style="font-size: 1rem;">layers</span> Mesa ID: {{ l.mesa_id }}</div>
@@ -89,9 +89,9 @@
                 <div style="height: 100%; transition: width 0.5s ease-in-out;" :style="{ width: progressoSelecionado.porcentagem + '%', background: progressoSelecionado.porcentagem >= 90 ? 'linear-gradient(90deg, #f57c00, #ffb74d)' : 'linear-gradient(90deg, #3a5a40, #588157)' }"></div>
               </div>
               <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #555; font-weight: 500;">
-                <span>🌱 Dias em campo: <strong>{{ progressoSelecionado.diasPassados }}</strong></span>
-                <span v-if="progressoSelecionado.diasRestantes > 0">⏱️ Restam: <strong>{{ progressoSelecionado.diasRestantes }} dias</strong></span>
-                <span v-else style="color: #e65100; font-weight: 700;">📢 Pronto para Colheita!</span>
+                <span>Dias em campo: <strong>{{ progressoSelecionado.diasPassados }}</strong></span>
+                <span v-if="progressoSelecionado.diasRestantes > 0">Restam: <strong>{{ progressoSelecionado.diasRestantes }} dias</strong></span>
+                <span v-else style="color: #e65100; font-weight: 700;">Pronto para Colheita!</span>
               </div>
             </div>
 
@@ -139,6 +139,7 @@ import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
 
+const isGerente = ref(false);
 const lotes = ref([]);
 const culturasDisponiveis = ref([]);
 const mesasDisponiveis = ref([]);
@@ -179,6 +180,21 @@ const carregarDados = async () => {
   } catch (err) { console.error(err); }
 };
 
+const carregarUsuarioLogado = async () => {
+  const token = localStorage.getItem('access_token');
+  try {
+    const res = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const dadosUsuario = await res.json();
+      isGerente.value = dadosUsuario.is_gerente;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 const selecionar = (l) => { loteSelecionado.value = l; modoCadastro.value = false; };
 
 const salvarLote = async () => {
@@ -189,5 +205,22 @@ const salvarLote = async () => {
   } catch (err) { console.error(err); }
 };
 
-onMounted(carregarDados);
+const mapaStatus = {
+  'ES': 'Em Estoque',
+  'BX': 'Estoque Baixo',
+  'DI': 'Disponível',
+  'AT': 'Ativo',
+  'CO': 'Colhido',
+  'PE': 'Perdido'
+};
+
+const traduzirStatus = (sigla) => {
+  return mapaStatus[sigla] || sigla; // Se não achar a sigla, retorna o original por segurança
+};
+
+onMounted(() => {
+  carregarDados();
+  carregarUsuarioLogado();
+});
+
 </script>

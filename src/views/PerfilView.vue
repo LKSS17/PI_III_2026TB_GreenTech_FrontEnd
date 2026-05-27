@@ -208,7 +208,6 @@ const buscarUsuario = async () => {
     cargoUsuario.value = funcionario.cargo_display;
     emailUsuario.value = funcionario.email;
     telefoneUsuario.value = funcionario.telefone;
-    cargoUsuario.value = funcionario.cargo;
 
     if (funcionario.data_entrada) {
       const dataCriacao = new Date(funcionario.data_entrada);
