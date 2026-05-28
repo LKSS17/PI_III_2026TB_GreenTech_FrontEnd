@@ -13,7 +13,7 @@
       <div class="action-bar-estoque">
         <div class="search-box-estoque">
           <span class="material-symbols-outlined search-icon">search</span>
-          <input type="text" class="search-input" v-model="busca" placeholder="Buscar por Lote ou Cultura..." />
+          <input type="text" class="search-input" v-model="busca" placeholder="Buscar por Lote ou Fornecedor..." />
         </div>
         <button class="btn-generate" @click="modoCadastro = true">
           <span class="material-symbols-outlined">add</span> Alocar Novo Lote
@@ -22,7 +22,7 @@
 
       <div class="inventory-split-view">
         <div class="seed-list-container">
-          <div v-if="lotesFiltrados.length === 0" class="empty-state">Nenhum lote de tubetes encontrado.</div>
+          <div v-if="lotesFiltrados.length === 0" class="empty-state">Nenhum lote encontrado.</div>
           <div
             v-else
             v-for="l in lotesFiltrados"
@@ -33,7 +33,13 @@
           >
             <div class="mini-card-header">
               <h4>LOTE #{{ l.id }}</h4>
-              <span class="badge badge-good">{{ traduzirStatus(l.status)}}</span>
+              <span class="badge" :class="{
+                'badge-good': l.status === 'AT' || l.status === 'DI',
+                'badge-warning': l.status === 'ES' || l.status === 'BX',
+                'badge-out': l.status === 'CO' || l.status === 'PE'
+              }">
+                {{ traduzirStatus(l.status) }}
+              </span>
             </div>
             <div class="mini-card-cultura">Fornecedor: {{ l.fornecedor }}</div>
             <div class="mini-card-qty"><span class="material-symbols-outlined" style="font-size: 1rem;">layers</span> Mesa ID: {{ l.mesa_id }}</div>
@@ -96,7 +102,7 @@
             </div>
 
             <div class="detail-grid" style="margin-bottom: 20px;">
-              <div class="detail-item"><label>Data de Plantio</label><span>{{ loteSelecionado.data_plantio }}</span></div>
+              <div class="detail-item"><label>Data de Plantio</label><span>{{ new Date(loteSelecionado.data_plantio).toLocaleDateString('pt-BR') }}</span></div>
               <div class="detail-item"><label>Mesa Atual</label><span>Mesa {{ loteSelecionado.mesa_id }}</span></div>
               <div class="detail-item full-width qty-destaque">
                 <label class="qty-label">Saldo Atual</label>
@@ -120,6 +126,22 @@
                 </div>
               </div>
             </div>
+
+            <div
+              v-if="isGerente || isAdmin"
+              style="margin-top: 35px; padding-top: 20px; border-top: 1px dashed #ffcdd2; display: flex; justify-content: flex-end;"
+            >
+              <button
+                @click="excluirLote(loteSelecionado.id)"
+                style="background: #c62828; color: white; padding: 10px 18px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;"
+                onmouseover="this.style.background='#b71c1c'"
+                onmouseout="this.style.background='#c62828'"
+              >
+                <span class="material-symbols-outlined" style="font-size: 1.2rem;">delete_forever</span>
+                Excluir Lote Definitivamente
+              </button>
+            </div>
+
           </div>
 
           <div v-else class="detalhe-placeholder" style="text-align: center; color: #aaa; margin-top: 100px;">
@@ -140,6 +162,7 @@ import Footer from "@/components/Footer.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
 
 const isGerente = ref(false);
+const isAdmin = ref(false);
 const lotes = ref([]);
 const culturasDisponiveis = ref([]);
 const mesasDisponiveis = ref([]);
@@ -149,8 +172,22 @@ const modoCadastro = ref(false);
 const busca = ref('');
 const form = ref({ cultura_id: '', mesa_id: '', data_plantio: new Date().toISOString().split('T')[0], status: 'AT', quantidade: 0, unidade: 'Unidades', fornecedor: '', validade: '' });
 
+// Dicionário de Status
+const mapaStatus = {
+  'ES': 'Em Estoque',
+  'BX': 'Estoque Baixo',
+  'DI': 'Disponível',
+  'AT': 'Ativo',
+  'CO': 'Colhido',
+  'PE': 'Perdido'
+};
+
+const traduzirStatus = (sigla) => {
+  return mapaStatus[sigla] || sigla;
+};
+
 const lotesFiltrados = computed(() => lotes.value.filter(l => l.id.toString().includes(busca.value) || l.fornecedor.toLowerCase().includes(busca.value.toLowerCase())));
-const movimentacoesDoLote = computed(() => !loteSelecionado.value ? [] : movimentacoesGerais.value.filter(m => m.lote_id === loteSelecionado.value.id));
+const movimentacoesDoLote = computed(() => !loteSelecionado.value ? [] : movimentacoesGerais.value.filter(m => m.lote_id === loteSelecionado.value.id).reverse()); // reverse para ver o mais recente no topo
 
 const progressoSelecionado = computed(() => {
   if (!loteSelecionado.value) return null;
@@ -189,6 +226,7 @@ const carregarUsuarioLogado = async () => {
     if (res.ok) {
       const dadosUsuario = await res.json();
       isGerente.value = dadosUsuario.is_gerente;
+      isAdmin.value = dadosUsuario.is_admin;
     }
   } catch (err) {
     console.error(err);
@@ -199,23 +237,45 @@ const selecionar = (l) => { loteSelecionado.value = l; modoCadastro.value = fals
 
 const salvarLote = async () => {
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/lotes/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }, body: JSON.stringify(form.value) });
-    if (res.ok) { alert("Lote alocado com sucesso!"); modoCadastro.value = false; carregarDados(); }
-    else { alert("Erro ao alocar o lote."); }
+    const res = await fetch('http://127.0.0.1:8000/api/lotes/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+      body: JSON.stringify(form.value)
+    });
+    if (res.ok) {
+      alert("Lote alocado com sucesso!");
+      modoCadastro.value = false;
+      form.value = { cultura_id: '', mesa_id: '', data_plantio: new Date().toISOString().split('T')[0], status: 'AT', quantidade: 0, unidade: 'Unidades', fornecedor: '', validade: '' };
+      carregarDados();
+    } else {
+      alert("Erro ao alocar o lote.");
+    }
   } catch (err) { console.error(err); }
 };
 
-const mapaStatus = {
-  'ES': 'Em Estoque',
-  'BX': 'Estoque Baixo',
-  'DI': 'Disponível',
-  'AT': 'Ativo',
-  'CO': 'Colhido',
-  'PE': 'Perdido'
-};
+const excluirLote = async (id) => {
+  if (!confirm(`TEM CERTEZA? Deseja excluir permanentemente o Lote #${id}?\n\nEsta ação apagará todo o histórico de transações associado no estoque e não poderá ser desfeita.`)) {
+    return;
+  }
 
-const traduzirStatus = (sigla) => {
-  return mapaStatus[sigla] || sigla; // Se não achar a sigla, retorna o original por segurança
+  const token = localStorage.getItem('access_token');
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/api/lotes/${id}/`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      alert("Lote excluído com sucesso!");
+      loteSelecionado.value = null;
+      await carregarDados();
+    } else {
+      const erro = await res.json();
+      alert(erro.error || "Acesso negado ou erro ao excluir.");
+    }
+  } catch (err) {
+    console.error("Erro na exclusão:", err);
+  }
 };
 
 onMounted(() => {
