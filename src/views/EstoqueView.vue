@@ -135,8 +135,21 @@
                   <div style="font-size: 0.75rem; color: #999; margin-top: 2px;">{{ new Date(m.data_movimentacao).toLocaleString('pt-BR') }}</div>
                 </div>
 
-                <div style="font-weight: bold; font-size: 1.1rem;" :style="{ color: m.tipo_movimentacao.toUpperCase() === 'ENTRADA' ? '#2e7d32' : '#c62828' }">
-                  {{ m.tipo_movimentacao.toUpperCase() === 'ENTRADA' ? '+' : '-' }}{{ parseFloat(m.quantidade) }}
+                <div style="display: flex; align-items: center; gap: 15px;">
+                  <div style="font-weight: bold; font-size: 1.1rem;" :style="{ color: m.tipo_movimentacao.toUpperCase() === 'ENTRADA' ? '#2e7d32' : '#c62828' }">
+                    {{ m.tipo_movimentacao.toUpperCase() === 'ENTRADA' ? '+' : '-' }}{{ parseFloat(m.quantidade) }}
+                  </div>
+
+                  <button
+                    v-if="isGerente || isAdmin"
+                    @click.stop="excluirMovimentacao(m.id)"
+                    style="background: none; border: none; color: #c62828; cursor: pointer; padding: 6px; border-radius: 6px; transition: background 0.2s; display: flex; align-items: center; justify-content: center;"
+                    onmouseover="this.style.background='#ffcdd2'"
+                    onmouseout="this.style.background='transparent'"
+                    title="Excluir este registro do Histórico"
+                  >
+                    <span class="material-symbols-outlined" style="font-size: 1.3rem;">delete</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -156,10 +169,15 @@
 </template>
 
 <script setup>
+import {carregarUsuarioLogado} from '@/assets/JS/verificarPermissao.js'
+
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
+
+const isGerente = ref(false);
+const isAdmin = ref(false);
 
 const lotes = ref([]);
 const culturas = ref([]);
@@ -209,15 +227,21 @@ const estoqueConsolidado = computed(() => {
   );
 });
 
-// Filtra as movimentações do banco que pertencem a QUALQUER lote da cultura selecionada
 const movimentacoesDaCultura = computed(() => {
   if (!culturaSelecionada.value) return [];
 
   return movimentacoesGerais.value.filter(m => {
     const lote = lotes.value.find(l => l.id === m.lote_id);
     return lote && lote.cultura_id === culturaSelecionada.value.cultura_id;
-  });
+  }).reverse(); // Opcional: inverte a lista para mostrar os mais recentes primeiro
 });
+
+const verificarAcessos = async () => {
+  const permissoes = await carregarUsuarioLogado();
+
+  isGerente.value = permissoes.is_gerente;
+  isAdmin.value = permissoes.is_admin;
+};
 
 const carregarDadosBase = async () => {
   const headers = { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
@@ -226,7 +250,7 @@ const carregarDadosBase = async () => {
       fetch('http://127.0.0.1:8000/api/lotes/', { headers }),
       fetch('http://127.0.0.1:8000/api/cultura/', { headers }),
       fetch('http://127.0.0.1:8000/api/colheita/', { headers }),
-      fetch('http://127.0.0.1:8000/api/estoque/', { headers }) // Puxa a tabela de transações
+      fetch('http://127.0.0.1:8000/api/estoque/', { headers })
     ]);
 
     if (resLotes.ok) lotes.value = await resLotes.json();
@@ -234,7 +258,6 @@ const carregarDadosBase = async () => {
     if (resColheitas.ok) colheitas.value = await resColheitas.json();
     if (resEstoque.ok) movimentacoesGerais.value = await resEstoque.json();
 
-    // Mantém a cultura selecionada atualizada caso a lista recarregue
     if (culturaSelecionada.value) {
       const atualizada = estoqueConsolidado.value.find(item => item.cultura_id === culturaSelecionada.value.cultura_id);
       if (atualizada) culturaSelecionada.value = atualizada;
@@ -246,12 +269,12 @@ const carregarDadosBase = async () => {
 
 const selecionarCultura = (item) => {
   culturaSelecionada.value = item;
-  modoCadastro.value = false; // Fecha o formulário para exibir o extrato
+  modoCadastro.value = false;
 };
 
 const abrirFormulario = () => {
   modoCadastro.value = true;
-  culturaSelecionada.value = null; // Tira o foco do card para focar no form
+  culturaSelecionada.value = null;
 };
 
 const salvarMovimentacao = async () => {
@@ -279,5 +302,32 @@ const salvarMovimentacao = async () => {
   }
 };
 
-onMounted(() => carregarDadosBase());
+const excluirMovimentacao = async (id) => {
+  if (!confirm(`TEM CERTEZA? Deseja excluir permanentemente este registro do histórico?\n\nIsso NÃO alterará o saldo atual dos lotes, apenas removerá o log de auditoria desta transação.`)) {
+    return;
+  }
+
+  const token = localStorage.getItem('access_token');
+  try {
+    const res = await fetch(`http://127.0.0.1:8000/api/estoque/${id}/`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      alert("Registro excluído com sucesso!");
+      await carregarDadosBase();
+    } else {
+      const erro = await res.json();
+      alert(erro.error || "Acesso negado ou erro ao excluir.");
+    }
+  } catch (err) {
+    console.error("Erro ao excluir movimentação:", err);
+  }
+};
+
+onMounted(() => {
+  carregarDadosBase();
+  verificarAcessos();
+});
 </script>

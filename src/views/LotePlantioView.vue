@@ -160,6 +160,7 @@ import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
+import {carregarUsuarioLogado} from "@/assets/JS/verificarPermissao.js";
 
 const isGerente = ref(false);
 const isAdmin = ref(false);
@@ -217,20 +218,11 @@ const carregarDados = async () => {
   } catch (err) { console.error(err); }
 };
 
-const carregarUsuarioLogado = async () => {
-  const token = localStorage.getItem('access_token');
-  try {
-    const res = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (res.ok) {
-      const dadosUsuario = await res.json();
-      isGerente.value = dadosUsuario.is_gerente;
-      isAdmin.value = dadosUsuario.is_admin;
-    }
-  } catch (err) {
-    console.error(err);
-  }
+const verificarAcessos = async () => {
+  const permissoes = await carregarUsuarioLogado();
+
+  isGerente.value = permissoes.is_gerente;
+  isAdmin.value = permissoes.is_admin;
 };
 
 const selecionar = (l) => { loteSelecionado.value = l; modoCadastro.value = false; };
@@ -280,7 +272,7 @@ const excluirLote = async (id) => {
 
 onMounted(() => {
   carregarDados();
-  carregarUsuarioLogado();
+  verificarAcessos();
 });
 
 </script>
