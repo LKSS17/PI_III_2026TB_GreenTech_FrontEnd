@@ -17,6 +17,8 @@
             <th style="padding: 15px 10px;">Subsistema</th>
             <th style="padding: 15px 10px;">Mesa Alvo</th>
             <th style="padding: 15px 10px;">Evento / Telemetria Gravada</th>
+            <th style="padding: 15px 10px;">Responsável</th>
+
           </tr>
           </thead>
           <tbody>

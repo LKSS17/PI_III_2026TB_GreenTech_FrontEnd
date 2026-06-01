@@ -47,12 +47,14 @@
           <span v-if="alertasAtivos > 0" class="badge-count">{{ alertasAtivos }}</span>
         </router-link>
       </li>
-      <li>
-        <router-link to="/historico" active-class="active">
-          <span class="material-symbols-outlined">history</span>
-          <span class="link-text">Histórico</span>
-        </router-link>
-      </li>
+      <div v-if="isGerente || isAdmin">
+        <li>
+          <router-link to="/historico" active-class="active">
+            <span class="material-symbols-outlined">history</span>
+            <span class="link-text">Histórico</span>
+          </router-link>
+        </li>
+      </div>
       <li>
         <router-link to="/sensores" active-class="active">
           <span class="material-symbols-outlined">detector</span>
@@ -106,12 +108,15 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import {carregarUsuarioLogado} from "@/assets/JS/verificarPermissao.js";
 
 const router = useRouter()
 
 const nomeUsuario  = ref('')
 const cargoUsuario = ref('')
 const alertasAtivos = ref(0) // Buscar via API futuramente
+const isGerente = ref(false);
+const isAdmin = ref(false);
 
 const iniciais = computed(() => {
   if (!nomeUsuario.value) return 'GT'
@@ -139,13 +144,24 @@ const buscarUsuario = async () => {
   }
 }
 
+const verificarAcessos = async () => {
+  const permissoes = await carregarUsuarioLogado();
+
+  isGerente.value = permissoes.is_gerente;
+  isAdmin.value = permissoes.is_admin;
+};
+
 const fazerLogout = () => {
   localStorage.removeItem('access_token')
   localStorage.removeItem('refresh_token')
   router.replace('/')
 }
 
-onMounted(buscarUsuario)
+onMounted( () =>
+  {
+    buscarUsuario();
+    verificarAcessos();
+  });
 </script>
 
 <style scoped>
