@@ -15,14 +15,6 @@
       <div class="kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; margin-bottom: 25px;">
 
         <div class="sensor-card kpi-card">
-          <div class="kpi-icon" style="background: rgba(76, 175, 80, 0.1); color: var(--primary-green);"><span class="material-symbols-outlined">psychiatry</span></div>
-          <div class="kpi-data">
-            <h3>{{ lotesAtivos }}</h3>
-            <p>Lotes em Cultivo</p>
-          </div>
-        </div>
-
-        <div class="sensor-card kpi-card">
           <div class="kpi-icon" style="background: rgba(2, 136, 209, 0.1); color: #0288d1;"><span class="material-symbols-outlined">view_in_ar</span></div>
           <div class="kpi-data">
             <h3>{{ estufas.length }}</h3>
@@ -39,10 +31,18 @@
         </div>
 
         <div class="sensor-card kpi-card">
+          <div class="kpi-icon" style="background: rgba(76, 175, 80, 0.1); color: var(--primary-green);"><span class="material-symbols-outlined">psychiatry</span></div>
+          <div class="kpi-data">
+            <h3>{{ lotesAtivos }}</h3>
+            <p>Lotes em Cultivo</p>
+          </div>
+        </div>
+
+        <div class="sensor-card kpi-card">
           <div class="kpi-icon" style="background: rgba(103, 58, 183, 0.1); color: #673ab7;"><span class="material-symbols-outlined">speed</span></div>
           <div class="kpi-data">
             <h3>{{ capacidadeTotal }}</h3>
-            <p>Capacidade de Tubetes</p>
+            <p>Capacidade de Plantio</p>
           </div>
         </div>
 

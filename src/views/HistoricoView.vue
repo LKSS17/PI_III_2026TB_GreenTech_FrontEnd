@@ -1,114 +1,281 @@
 <template>
   <Sidebar />
+
   <main class="main-content">
-    <header class="dash-header">
-      <div class="header-titles">
-        <h1>Histórico e Auditoria do Sistema</h1>
-        <p>Logs cronológicos consolidados das atividades físicas e telemétricas das estufas.</p>
-      </div>
-    </header>
+    <DashHeader
+      title="Auditoria do Sistema"
+      subtitle="Registro global de inserções, alterações e exclusões (Acesso Restrito)."
+    />
 
-    <section class="registration-container" style="align-items: flex-start;">
-      <div class="form-card" style="max-width: 1100px; width: 100%; padding: 25px;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-          <thead>
-          <tr style="border-bottom: 2px solid var(--glass-border); color: var(--primary-dark); font-family: 'Poppins', sans-serif;">
-            <th style="padding: 15px 10px;">Timestamp</th>
-            <th style="padding: 15px 10px;">Subsistema</th>
-            <th style="padding: 15px 10px;">Mesa Alvo</th>
-            <th style="padding: 15px 10px;">Evento / Telemetria Gravada</th>
-            <th style="padding: 15px 10px;">Responsável</th>
+    <section class="auditoria-container">
+      <div class="auditoria-card">
 
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="log in logsUnificados" :key="log.uid" style="border-bottom: 1px solid rgba(0,0,0,0.05); transition: background 0.2s;">
-            <td style="padding: 15px 10px; color: #666; font-size: 0.9rem; font-family: monospace;">{{ formatarData(log.data) }}</td>
-            <td style="padding: 15px 10px;">
-                <span
-                  class="badge"
-                  :style="{
-                    background: log.tipo === 'Clima' ? 'rgba(58,90,64,0.1)' : 'rgba(25,118,210,0.1)',
-                    color: log.tipo === 'Clima' ? 'var(--primary-green)' : '#1976d2',
-                    fontWeight: '700'
-                  }"
-                >
-                  {{ log.tipo }}
-                </span>
-            </td>
-            <td style="padding: 15px 10px; color: var(--primary-dark); font-weight: 600;">ID: {{ log.mesa }}</td>
-            <td style="padding: 15px 10px; color: #333; font-size: 0.95rem;">{{ log.descricao }}</td>
-          </tr>
-          <tr v-if="logsUnificados.length === 0">
-            <td colspan="4" style="text-align: center; padding: 40px; color: #aaa; font-style: italic;">Nenhum registro de atividade encontrado nas bases de dados.</td>
-          </tr>
-          </tbody>
-        </table>
+        <div class="card-header">
+          <h3 style="display: flex; align-items: center; gap: 8px; color: var(--primary-dark); font-size: 1.2rem;">
+            <span class="material-symbols-outlined" style="color: var(--primary-green);">policy</span>
+            Logs de Atividade
+          </h3>
+
+          <button class="btn-outline" @click="carregarLogs" :disabled="carregando">
+            <span class="material-symbols-outlined" :class="{ 'spinning': carregando }">refresh</span>
+            {{ carregando ? 'Atualizando...' : 'Atualizar Logs' }}
+          </button>
+        </div>
+
+        <div v-if="erro" class="alert-error">
+          <span class="material-symbols-outlined">gpp_bad</span>
+          <div>
+            <strong>Acesso Bloqueado ou Falha na Requisição</strong><br>
+            {{ erro }}
+          </div>
+        </div>
+
+        <div class="table-responsive" v-else>
+          <table class="auditoria-table">
+            <thead>
+            <tr>
+              <th>Data e Hora</th>
+              <th>Usuário</th>
+              <th>Ação</th>
+              <th>Módulo Afetado</th>
+              <th>Detalhes / Histórico</th>
+              <th>Registro</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-if="carregando && logs.length === 0">
+              <td colspan="6" style="text-center; padding: 40px; color: #888;">
+                <div style="display:flex; justify-content:center; align-items:center; gap: 10px;">
+                  <span class="material-symbols-outlined spinning">sync</span> Buscando dados seguros...
+                </div>
+              </td>
+            </tr>
+
+            <tr v-else-if="logs.length === 0">
+              <td colspan="6" style="text-align: center; padding: 40px; color: #888;">
+                Nenhum registro de auditoria foi encontrado no banco de dados.
+              </td>
+            </tr>
+
+            <tr v-else v-for="log in logs" :key="log.id_log">
+              <td class="col-data" style="white-space: nowrap;">{{ formatarData(log.data_hora) }}</td>
+              <td class="col-user">
+                  <span class="user-badge">
+                    <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: text-bottom;">person</span>
+                    {{ log.usuario }}
+                  </span>
+              </td>
+              <td>
+                  <span class="badge-acao" :class="badgeClass(log.acao)">
+                    {{ log.acao }}
+                  </span>
+              </td>
+              <td class="col-tabela" style="font-family: monospace; color: #555;">{{ log.tabela_afetada }}</td>
+              <td class="col-detalhes" style="color: #666; font-size: 0.85rem; max-width: 300px;">
+                {{ log.detalhes || 'Sem detalhes adicionais.' }}
+              </td>
+              <td class="col-registro" style="font-weight: 600; color: var(--primary-dark);">{{ log.registro_afetado }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </section>
-    <Footer/>
+
+    <Footer />
   </main>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
-import Footer from "@/components/Footer.vue";
+import Footer from '@/components/Footer.vue';
+import DashHeader from '@/components/DashHeader.vue';
 
-const registrosClima = ref([]);
-const registrosIrrigacao = ref([]);
+const logs = ref([]);
+const carregando = ref(false);
+const erro = ref('');
 
-const buscarLogsDoBanco = async () => {
+const carregarLogs = async () => {
+  carregando.value = true;
+  erro.value = '';
   const token = localStorage.getItem('access_token');
-  const headers = { 'Authorization': `Bearer ${token}` };
 
   try {
-    const [resClima, resIrrig] = await Promise.all([
-      fetch('http://127.0.0.1:8000/api/clima/', { headers }),
-      fetch('http://127.0.0.1:8000/api/irrigacao/', { headers })
-    ]);
+    const res = await fetch('http://127.0.0.1:8000/api/funcionarios/auditoria/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
-    if (resClima.ok) registrosClima.value = await resClima.ok ? await resClima.json() : [];
-    if (resIrrig.ok) registrosIrrigacao.value = await resIrrig.ok ? await resIrrig.json() : [];
-  } catch (err) {
-    console.error("Erro na carga do log unificado:", err);
+    if (!res.ok) {
+      if (res.status === 403) {
+        erro.value = "Suas credenciais não possuem o nível de 'Gerente' ou 'Admin' necessário para visualizar a auditoria.";
+      } else {
+        erro.value = "Falha ao se comunicar com o servidor de logs.";
+      }
+      return;
+    }
+
+    logs.value = await res.json();
+  } catch (e) {
+    console.error("Erro ao buscar auditoria:", e);
+    erro.value = "Erro de conexão. Verifique se a API do Django está rodando.";
+  } finally {
+    carregando.value = false;
   }
 };
 
-const logsUnificados = computed(() => {
-  const resultado = [];
-
-  // Mapeia registros telemétricos de clima
-  registrosClima.value.forEach(c => {
-    resultado.push({
-      uid: `C-${c.id}`,
-      data: c.data_registro,
-      tipo: "Clima",
-      mesa: c.mesa_id,
-      descricao: `Varredura automática: Temp=${c.temperatura}°C | Umid=${c.umidade}% | Lux=${c.luminosidade}% | Ventiladores [Módulo ${c.ventilacao}].`
-    });
+const formatarData = (dataStr) => {
+  const data = new Date(dataStr);
+  return data.toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
   });
+};
 
-  // Mapeia registros físicos de atuação de água
-  registrosIrrigacao.value.forEach(i => {
-    resultado.push({
-      uid: `I-${i.id}`,
-      data: i.data_registro,
-      tipo: "Irrigação",
-      mesa: i.mesa_id,
-      descricao: `Atuador Solenoide [${i.valvula_id}] alterado para estado de operação: ${i.status_atual.toUpperCase()}. Vazão: ${i.fluxo_l_min} L/min. Consumo do ciclo: ${i.consumo_ciclo_l}L.`
-    });
-  });
-
-  // decrescente por data (mais recente no topo)
-  return resultado.sort((a, b) => new Date(b.data) - new Date(a.data));
-});
-
-const formatarData = (stringData) => {
-  return new Date(stringData).toLocaleString('pt-BR');
+// Define a cor da badge baseado na ação do banco de dados
+const badgeClass = (acao) => {
+  if (acao === 'ADICIONOU') return 'badge-add';
+  if (acao === 'MODIFICOU') return 'badge-edit';
+  if (acao === 'DELETOU') return 'badge-delete';
+  return 'badge-default';
 };
 
 onMounted(() => {
-  buscarLogsDoBanco();
+  carregarLogs();
 });
 </script>
+
+<style scoped>
+.auditoria-container {
+  padding: 0 40px 40px;
+}
+
+.auditoria-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 15px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #aaa;
+  color: #333;
+}
+
+.btn-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alert-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  color: #c62828;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.alert-error .material-symbols-outlined {
+  font-size: 2rem;
+}
+
+/* Tabela de Auditoria */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.auditoria-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.auditoria-table th {
+  background: rgba(0,0,0,0.03);
+  color: var(--primary-dark);
+  padding: 14px 15px;
+  text-align: left;
+  font-weight: 700;
+  border-bottom: 2px solid rgba(0,0,0,0.05);
+  white-space: nowrap;
+}
+
+.auditoria-table td {
+  padding: 14px 15px;
+  border-bottom: 1px solid rgba(0,0,0,0.03);
+  vertical-align: middle;
+}
+
+.auditoria-table tr:hover {
+  background-color: rgba(255,255,255,0.6);
+}
+
+/* Badges e Estilos Específicos */
+.user-badge {
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  color: #444;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-acao {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  text-align: center;
+}
+
+.badge-add { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.badge-edit { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+.badge-delete { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+.badge-default { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+</style>

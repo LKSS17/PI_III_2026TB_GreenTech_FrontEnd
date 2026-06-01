@@ -109,7 +109,7 @@ const infosSistema = [
   { label: 'Versão da Aplicação', value: '0.1.0 (Alpha)' },
   { label: 'Stack Frontend', value: 'Vue.js' },
   { label: 'Licença de Uso', value: 'Projeto Acadêmico (FHO)' },
-  { label: 'Suporte Técnico', value: 'felipe.suporte@greentech.dev' }
+  { label: 'Suporte Técnico', value: 'Acesse o GitHub' }
 ];
 
 const config = ref({

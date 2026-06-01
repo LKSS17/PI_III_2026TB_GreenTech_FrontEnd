@@ -14,6 +14,8 @@ import ColheitasView from "@/views/ColheitasView.vue";
 import LotePlantioView from "@/views/LotePlantioView.vue";
 import EstoqueView from "@/views/EstoqueView.vue";
 
+import { carregarUsuarioLogado } from '@/assets/JS/verificarPermissao.js'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -30,12 +32,31 @@ const router = createRouter({
     { path: '/historico',   name: 'historico',   component: HistoricoView   ,       meta: { requiresAuth: true } },
     { path: '/perfil',      name: 'perfil',      component: PerfilView      ,       meta: { requiresAuth: true } },
     { path: '/configuracoes', name: 'configuracao', component: ConfiguracaoView,    meta: { requiresAuth: true } },
+    {
+      path: '/historico',
+      name: 'historico',
+      component: HistoricoView,
+      meta: { requiresAuth: true, requiresAuditor: true }
+    },
   ]
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const token = localStorage.getItem('access_token')
-  if (to.meta.requiresAuth && !token) return next('/')
+
+  if (to.meta.requiresAuth && !token) {
+    return next('/')
+  }
+
+  if (to.meta.requiresAuditor) {
+    const permissoes = await carregarUsuarioLogado()
+
+    if (!permissoes.is_gerente && !permissoes.is_admin) {
+      alert("Acesso Negado: Apenas Gerentes e Administradores podem acessar a Auditoria do sistema.")
+      return next('/dashboard')
+    }
+  }
+
   next()
 })
 

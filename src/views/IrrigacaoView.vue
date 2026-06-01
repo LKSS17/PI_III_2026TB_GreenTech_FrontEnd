@@ -16,7 +16,7 @@
         <div class="empty-icon-wrapper" style="background: rgba(25, 118, 210, 0.1);">
           <span class="material-symbols-outlined pulse-icon" style="color: #1976d2;">valve</span>
         </div>
-        <h2>Aguardando Módulos de Relé</h2>
+        <h2>Aguardando Módulos de Irrigação</h2>
         <p>O painel de controle está pronto, mas nenhuma válvula inteligente foi detectada nas estufas.</p>
 
         <div class="api-docs">
