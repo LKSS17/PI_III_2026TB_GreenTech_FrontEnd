@@ -2,13 +2,14 @@
   <Sidebar />
 
   <main class="main-content">
-    <header class="dash-header">
-      <div class="header-titles">
-        <h1>Sensores IoT</h1>
-        <p>Monitoramento em tempo real do clima nas estufas.</p>
-      </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-right: 40px; padding-top: 10px;">
+      <DashHeader
+        title="Sensores IoT"
+        subtitle="Monitoramento em tempo real do clima nas estufas."
+      />
       <WeatherWidget v-if="modoSimulacao" />
-    </header>
+    </div>
 
     <section v-if="!modoSimulacao" class="empty-state-section">
       <div class="empty-card">
@@ -146,6 +147,7 @@ Authorization: Api-Key GT_IOT_SECRET_KEY_2026</code></pre>
 import { ref, computed, onUnmounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
+import DashHeader from "@/components/DashHeader.vue"; // <-- Importado
 import WeatherWidget from "@/components/WeatherWidget.vue";
 
 // Controle de Estado da Tela
@@ -175,10 +177,8 @@ const corTemperatura = (s) => {
   return 'var(--primary-dark)';
 };
 
-// Lógica de Simulação
 const iniciarSimulacao = () => {
   modoSimulacao.value = true;
-  // Na simulação, atualiza a cada 5 segundos para o efeito visual ficar nítido
   intervaloRelogio = setInterval(atualizarSensores, 5000);
 };
 
@@ -201,10 +201,9 @@ const atualizarSensores = () => {
       }
     });
     atualizando.value = false;
-  }, 400); // Efeito visual de carregamento rápido
+  }, 400);
 };
 
-// Gráfico Lógica
 const estufaSelecionadaGrafico = ref('Estufa 01');
 const dadosHistorico = {
   "Estufa 01": [23, 24, 25, 26, 27, 31, 30, 28, 26, 25, 24, 24],
@@ -261,179 +260,78 @@ const svgGraficoGerado = computed(() => {
   `;
 });
 
-// Limpeza na destruição do componente para não vazar memória
 onUnmounted(() => {
   if (intervaloRelogio) clearInterval(intervaloRelogio);
 });
 </script>
 
+
 <style scoped>
-/* Estilos Específicos para a Documentação e Empty State */
-.empty-state-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-}
+/* --- ESTADO VAZIO / API DOCS --- */
+.empty-state-section { display: flex; justify-content: center; align-items: center; padding: 40px; }
+.empty-card { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 50px 40px; max-width: 700px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); }
+.empty-icon-wrapper { background: rgba(188, 108, 37, 0.1); width: 100px; height: 100px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 20px; }
+.pulse-icon { font-size: 3.5rem; color: var(--accent-terracota); animation: pulse-slow 2s infinite; }
+@keyframes pulse-slow { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+.empty-card h2 { color: var(--primary-green); font-family: 'Poppins', sans-serif; margin-bottom: 10px; font-size: 1.8rem; }
+.empty-card p { color: #666; margin-bottom: 30px; }
 
-.empty-card {
-  background: var(--glass-bg, rgba(255, 255, 255, 0.8));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
-  border-radius: 20px;
-  padding: 50px 40px;
-  max-width: 700px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-}
+.api-docs { background: #1e1e1e; border-radius: 12px; text-align: left; overflow: hidden; margin-bottom: 30px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+.docs-header { background: #2d2d2d; color: #e0e0e0; padding: 10px 15px; font-size: 0.85rem; font-family: monospace; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #444; }
+.docs-body { padding: 20px; }
+.method-url { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-family: monospace; font-size: 1rem; }
+.method { background: #4caf50; color: #111; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+.url { color: #4db8ff; word-break: break-all; }
+.docs-body strong { color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+.docs-body pre { margin: 10px 0 20px 0; background: #111; padding: 15px; border-radius: 8px; overflow-x: auto; }
+.docs-body code { font-family: 'Consolas', 'Monaco', monospace; color: #ce9178; font-size: 0.85rem; }
 
-.empty-icon-wrapper {
-  background: rgba(188, 108, 37, 0.1);
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto 20px;
-}
+.btn-ghost { background: transparent; border: 1px solid #ccc; color: #777; padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
+.btn-ghost:hover { background: rgba(0,0,0,0.05); color: var(--primary-dark); border-color: var(--primary-dark); }
+.btn-danger-outline { background: transparent; border: 1px solid #ffcdd2; color: #d32f2f; padding: 8px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+.btn-danger-outline:hover { background: #ffebee; }
 
-.pulse-icon {
-  font-size: 3.5rem;
-  color: var(--accent-terracota, #bc6c25);
-  animation: pulse-slow 2s infinite;
-}
+/* --- MÓDULO DE SIMULAÇÃO: SENSORES --- */
+.sensores-status-bar { display: flex; gap: 15px; padding: 0 40px; margin-bottom: 20px; align-items: center; }
+.status-pill { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+.status-online { background: rgba(76, 175, 80, 0.15); color: #2d5a27; }
+.status-alert { background: rgba(211, 47, 47, 0.15); color: #d32f2f; }
+.status-offline { background: rgba(0, 0, 0, 0.05); color: #666; }
+.action-buttons-right { margin-left: auto; display: flex; gap: 10px; }
 
-@keyframes pulse-slow {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
-}
+.btn-refresh { background: white; border: 1px solid var(--glass-border); padding: 8px 16px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; transition: 0.3s; }
+.btn-refresh:hover { background: var(--bg-creme); }
+.spinning { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
 
-.empty-card h2 {
-  color: var(--primary-green, #3a5a40);
-  font-family: 'Poppins', sans-serif;
-  margin-bottom: 10px;
-  font-size: 1.8rem;
-}
+.sensores-grid-container { padding: 0 40px 30px; }
+.sensores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.sensor-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+.sensor-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.sensor-card-title { font-weight: 700; color: var(--primary-dark); }
+.sensor-card-location { font-size: 0.85rem; color: #666; margin-top: 5px; }
+.sensor-status-dot { width: 12px; height: 12px; border-radius: 50%; }
+.sensor-card.online .sensor-status-dot { background: #4CAF50; box-shadow: 0 0 8px rgba(76,175,80,0.5); }
+.sensor-card.alerta .sensor-status-dot { background: #f44336; box-shadow: 0 0 8px rgba(244,67,54,0.5); animation: pulse 1.5s infinite; }
+.sensor-card.offline .sensor-status-dot { background: #9e9e9e; }
 
-.empty-card p {
-  color: #666;
-  margin-bottom: 30px;
-}
+.sensor-readings { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+.reading-item { background: rgba(255,255,255,0.5); padding: 10px; border-radius: 12px; text-align: center; }
+.reading-item.full { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 10px 15px; }
+.reading-value { font-size: 1.5rem; font-weight: 700; display: block; color: var(--primary-dark); }
+.reading-label { font-size: 0.75rem; color: #777; text-transform: uppercase; font-weight: 600; }
+.lux-bar-track { flex: 1; height: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden; }
+.lux-bar-fill { height: 100%; background: #ffd54f; }
+.sensor-card-footer { border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px; font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 5px; }
 
-/* Área de Código / API Docs */
-.api-docs {
-  background: #1e1e1e; /* Estilo terminal */
-  border-radius: 12px;
-  text-align: left;
-  overflow: hidden;
-  margin-bottom: 30px;
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
-}
+.historico-container { padding: 0 40px 40px; }
+.historico-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 25px; }
+.historico-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.grafico-wrapper { height: 200px; width: 100%; }
 
-.docs-header {
-  background: #2d2d2d;
-  color: #e0e0e0;
-  padding: 10px 15px;
-  font-size: 0.85rem;
-  font-family: monospace;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px solid #444;
-}
-
-.docs-body {
-  padding: 20px;
-}
-
-.method-url {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  font-family: monospace;
-  font-size: 1rem;
-}
-
-.method {
-  background: #4caf50;
-  color: #111;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 0.8rem;
-}
-
-.url {
-  color: #4db8ff;
-  word-break: break-all;
-}
-
-.docs-body strong {
-  color: #888;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.docs-body pre {
-  margin: 10px 0 20px 0;
-  background: #111;
-  padding: 15px;
-  border-radius: 8px;
-  overflow-x: auto;
-}
-
-.docs-body code {
-  font-family: 'Consolas', 'Monaco', monospace;
-  color: #ce9178; /* Cor tipo string de IDE */
-  font-size: 0.85rem;
-}
-
-/* Botões Complementares */
-.btn-ghost {
-  background: transparent;
-  border: 1px solid #ccc;
-  color: #777;
-  padding: 10px 20px;
-  border-radius: 30px;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-}
-
-.btn-ghost:hover {
-  background: rgba(0,0,0,0.05);
-  color: var(--primary-dark);
-  border-color: var(--primary-dark);
-}
-
-.action-buttons-right {
-  margin-left: auto;
-  display: flex;
-  gap: 10px;
-}
-
-.btn-danger-outline {
-  background: transparent;
-  border: 1px solid #ffcdd2;
-  color: #d32f2f;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: 0.2s;
-}
-
-.btn-danger-outline:hover {
-  background: #ffebee;
+/* Responsividade */
+@media (max-width: 768px) {
+  .sensores-status-bar { flex-direction: column; align-items: flex-start; }
+  .action-buttons-right { width: 100%; justify-content: space-between; }
 }
 </style>

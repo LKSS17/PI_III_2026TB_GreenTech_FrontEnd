@@ -1,13 +1,14 @@
 <template>
   <Sidebar />
   <main class="main-content">
-    <header class="dash-header">
-      <div class="header-titles">
-        <h1>Painel Geral</h1>
-        <p>Visão estratégica da infraestrutura, produção e próximas colheitas.</p>
-      </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-right: 40px; padding-top: 10px;">
+      <DashHeader
+        title="Painel Geral"
+        subtitle="Visão estratégica da infraestrutura, produção e próximas colheitas."
+      />
       <WeatherWidget />
-    </header>
+    </div>
 
     <section style="display: flex; flex-direction: column; gap: 30px; padding: 20px 40px; width: 100%; max-width: 1400px; margin: 0 auto;">
 
@@ -123,6 +124,7 @@
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from '@/components/Footer.vue';
+import DashHeader from '@/components/DashHeader.vue'; // <-- Importado
 import WeatherWidget from '@/components/WeatherWidget.vue';
 
 const lotes = ref([]);
@@ -131,14 +133,11 @@ const estufas = ref([]);
 const mesas = ref([]);
 const estoque = ref([]);
 
-// KPIs
 const lotesAtivos = computed(() => lotes.value.filter(l => l.status !== 'CO' && l.status !== 'PE').length);
 const capacidadeTotal = computed(() => mesas.value.reduce((acc, m) => acc + parseFloat(m.capacidade_maxima || 0), 0));
 
-// Mini-feed de atividades (Pega as 4 últimas movimentações)
 const movimentacoesRecentes = computed(() => estoque.value.slice(0, 4));
 
-// Lotes Mais Próximos da Colheita
 const lotesMaisProximosColheita = computed(() => {
   return lotes.value
     .filter(l => l.status !== 'CO' && l.status !== 'PE')
@@ -152,7 +151,7 @@ const lotesMaisProximosColheita = computed(() => {
     })
     .filter(item => item !== null)
     .sort((a, b) => b.porcentagem - a.porcentagem)
-    .slice(0, 4); // Exibe os 4 mais urgentes
+    .slice(0, 4);
 });
 
 onMounted(async () => {
@@ -178,7 +177,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Grid da parte de baixo */
 .telemetry-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -187,7 +185,6 @@ onMounted(async () => {
   max-width: 1200px;
 }
 
-/* Card Padrão (Glassmorphism) */
 .sensor-card {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -205,7 +202,6 @@ onMounted(async () => {
   border-color: var(--primary-green);
 }
 
-/* Estilo específico para os cards KPI (Top Row) */
 .kpi-card {
   flex-direction: row;
   align-items: center;

@@ -1,13 +1,14 @@
 <template>
   <Sidebar />
   <main class="main-content">
-    <header class="dash-header">
-      <div class="header-titles">
-        <h1>Estoque Consolidado</h1>
-        <p>Visão geral de inventário por cultura e histórico detalhado de transações.</p>
-      </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-right: 40px; padding-top: 10px;">
+      <DashHeader
+        title="Estoque Consolidado"
+        subtitle="Visão geral de inventário por cultura e histórico detalhado de transações."
+      />
       <WeatherWidget />
-    </header>
+    </div>
 
     <section class="registration-container-estoque">
       <div class="action-bar-estoque">
@@ -169,11 +170,11 @@
 </template>
 
 <script setup>
-import {carregarUsuarioLogado} from '@/assets/JS/verificarPermissao.js'
-
+import { carregarUsuarioLogado } from '@/assets/JS/verificarPermissao.js'
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
+import DashHeader from "@/components/DashHeader.vue"; // <-- Importado
 import WeatherWidget from "@/components/WeatherWidget.vue";
 
 const isGerente = ref(false);
@@ -182,15 +183,14 @@ const isAdmin = ref(false);
 const lotes = ref([]);
 const culturas = ref([]);
 const colheitas = ref([]);
-const movimentacoesGerais = ref([]); // Guarda todas as movimentações brutas do banco
+const movimentacoesGerais = ref([]);
 
-const culturaSelecionada = ref(null); // Controla qual card de cultura está ativo
+const culturaSelecionada = ref(null);
 const modoCadastro = ref(false);
 const busca = ref('');
 
 const form = ref({ lote_id: '', tipo_movimentacao: 'Entrada', quantidade: 0.0, motivo: '' });
 
-// Monta os cards resumidos do lado esquerdo
 const estoqueConsolidado = computed(() => {
   const consolidados = {};
 
@@ -229,16 +229,14 @@ const estoqueConsolidado = computed(() => {
 
 const movimentacoesDaCultura = computed(() => {
   if (!culturaSelecionada.value) return [];
-
   return movimentacoesGerais.value.filter(m => {
     const lote = lotes.value.find(l => l.id === m.lote_id);
     return lote && lote.cultura_id === culturaSelecionada.value.cultura_id;
-  }).reverse(); // Opcional: inverte a lista para mostrar os mais recentes primeiro
+  }).reverse();
 });
 
 const verificarAcessos = async () => {
   const permissoes = await carregarUsuarioLogado();
-
   isGerente.value = permissoes.is_gerente;
   isAdmin.value = permissoes.is_admin;
 };
@@ -303,10 +301,7 @@ const salvarMovimentacao = async () => {
 };
 
 const excluirMovimentacao = async (id) => {
-  if (!confirm(`TEM CERTEZA? Deseja excluir permanentemente este registro do histórico?\n\nIsso NÃO alterará o saldo atual dos lotes, apenas removerá o log de auditoria desta transação.`)) {
-    return;
-  }
-
+  if (!confirm(`TEM CERTEZA? Deseja excluir permanentemente este registro do histórico?`)) return;
   const token = localStorage.getItem('access_token');
   try {
     const res = await fetch(`http://127.0.0.1:8000/api/estoque/${id}/`, {
@@ -331,3 +326,5 @@ onMounted(() => {
   verificarAcessos();
 });
 </script>
+
+

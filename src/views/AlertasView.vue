@@ -1,12 +1,10 @@
 <template>
   <Sidebar />
   <main class="main-content">
-    <header class="dash-header">
-      <div class="header-titles">
-        <h1>Central de Alertas Real-Time</h1>
-        <p>Notificações automáticas calculadas diretamente das leituras dos sensores IoT.</p>
-      </div>
-    </header>
+    <DashHeader
+      title="Central de Alertas Real-Time"
+      subtitle="Notificações automáticas calculadas diretamente das leituras dos sensores IoT."
+    />
 
     <section class="registration-container" style="align-items: flex-start;">
       <div class="form-card" style="max-width: 1000px; width: 100%;">
@@ -50,6 +48,7 @@
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
+import DashHeader from "@/components/DashHeader.vue";
 
 const leiturasClima = ref([]);
 
