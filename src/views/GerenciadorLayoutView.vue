@@ -2,13 +2,16 @@
   <Sidebar />
 
   <main class="main-content">
-    <header class="dash-header">
-      <div class="header-titles">
-        <h1>Gêmeo Virtual 3D</h1>
-        <p>Construção espacial das Estufas e alocação de Mesas de cultivo.</p>
+
+    <div class="dashboard-top-bar">
+      <DashHeader
+        title="Gêmeo Virtual 3D"
+        subtitle="Construção espacial das Estufas e alocação de Mesas de cultivo."
+      />
+      <div class="widget-wrapper">
+        <WeatherWidget />
       </div>
-      <WeatherWidget />
-    </header>
+    </div>
 
     <section class="layout-control-container">
 
@@ -92,7 +95,7 @@
 
         <div v-if="estufaSelecionada" class="inner-layout-details" style="margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <div class="details-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h4 style="color: var(--primary-green); margin: 0;">Layout Interno — {{ estufaSelecionada.nome_setor }}</h4>
             <button
               @click="excluirEstufa(estufaSelecionada.id)"
@@ -133,6 +136,8 @@
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from '@/components/Footer.vue';
+// 2. Importámos o DashHeader que faltava!
+import DashHeader from '@/components/DashHeader.vue';
 import WeatherWidget from '@/components/WeatherWidget.vue';
 
 const tipoCadastro = ref('estufa');
@@ -225,8 +230,6 @@ const cadastrarMesa = async () => {
   }
 };
 
-// --- NOVAS FUNÇÕES DE EXCLUSÃO (CASCATA) ---
-
 const excluirEstufa = async (id) => {
   if (!confirm("ATENÇÃO: Demolir esta estufa apagará TODAS as mesas instaladas e os lotes plantados nela. Esta ação é irreversível. Deseja continuar?")) {
     return;
@@ -277,9 +280,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Omissão do restante do CSS que não mudou para não poluir... (layout-control-container, scene-3d-wrapper, etc) */
 
-/* Os estilos que você já tinha continuam iguais, apenas adicionei estes dois para os botões novos: */
+.dashboard-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-right: 40px;
+  padding-top: 10px;
+}
 
 .btn-danger-outline {
   background: transparent;
@@ -294,9 +302,7 @@ onMounted(() => {
   transition: 0.2s;
 }
 
-.btn-danger-outline:hover {
-  background: #ffebee;
-}
+.btn-danger-outline:hover { background: #ffebee; }
 
 .mesa-mini-plate {
   background: white;
@@ -305,7 +311,7 @@ onMounted(() => {
   border-radius: 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Ajustado para dar espaço ao botão de excluir */
+  justify-content: space-between;
   gap: 15px;
   font-weight: 700;
   color: var(--primary-dark);
@@ -314,28 +320,10 @@ onMounted(() => {
   min-width: 140px;
 }
 
-.mesa-mini-plate:hover {
-  transform: translateY(-2px);
-  border-color: var(--primary-green);
-}
+.mesa-mini-plate:hover { transform: translateY(-2px); border-color: var(--primary-green); }
 
-.btn-icon-delete {
-  background: none;
-  border: none;
-  color: #ccc;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 50%;
-  transition: 0.2s;
-}
-
-.btn-icon-delete:hover {
-  color: #d32f2f;
-  background: #ffebee;
-}
+.btn-icon-delete { background: none; border: none; color: #ccc; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 50%; transition: 0.2s; }
+.btn-icon-delete:hover { color: #d32f2f; background: #ffebee; }
 
 .layout-control-container { display: grid; grid-template-columns: 350px 1fr; gap: 30px; padding: 0 40px 40px; align-items: start; }
 .control-panel-card, .canvas-3d-card { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
@@ -343,8 +331,21 @@ onMounted(() => {
 .btn-tab { flex: 1; background: rgba(255,255,255,0.5); border: 1px solid var(--glass-border); padding: 10px; border-radius: 10px; cursor: pointer; font-weight: 600; color: #666; transition: 0.3s; }
 .btn-tab.active { background: var(--primary-green); color: white; border-color: var(--primary-green); box-shadow: 0 4px 10px rgba(58, 90, 64, 0.2); }
 .spatial-form { display: flex; flex-direction: column; gap: 15px; }
-.scene-3d-wrapper { height: 380px; width: 100%; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(240,240,240,0.4) 100%); border-radius: 16px; display: flex; justify-content: center; align-items: center; overflow: hidden; perspective: 1500px; border: 1px dashed rgba(0,0,0,0.1); }
-.isometric-grid { display: grid; grid-template-columns: repeat(auto-fit, 100px); gap: 50px; transform: rotateX(60deg) rotateZ(-45deg); transform-style: preserve-3d; width: 80%; justify-content: center; }
+
+.scene-3d-wrapper {
+  height: 380px;
+  width: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(240,240,240,0.4) 100%);
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  perspective: 1500px;
+  border: 1px dashed rgba(0,0,0,0.1);
+}
+
+.isometric-grid { display: grid; grid-template-columns: repeat(auto-fit, 100px); gap: 50px; transform: rotateX(60deg) rotateZ(-45deg); transform-style: preserve-3d; width: 80%; justify-content: center; transition: transform 0.3s; }
 .cube-estufa { width: 100px; height: 100px; position: relative; transform-style: preserve-3d; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
 .cube-estufa:hover, .cube-estufa.selected { transform: translateZ(20px); }
 .cube-face { position: absolute; width: 100px; height: 100px; transition: 0.3s; box-sizing: border-box; }
@@ -354,4 +355,26 @@ onMounted(() => {
 .face-side { background: rgba(47, 62, 53, 0.95); transform: rotateY(90deg) translateX(20px) translateZ(40px); width: 40px; }
 .cube-label { color: white; font-weight: 800; font-size: 0.85rem; transform: rotateZ(45deg); text-shadow: 1px 1px 3px rgba(0,0,0,0.5); white-space: nowrap; }
 .tables-subgrid { display: flex; flex-wrap: wrap; gap: 15px; }
+
+/* =========================================
+   RESPONSIVIDADE MOBILE
+   ========================================= */
+@media (max-width: 900px) {
+  .dashboard-top-bar {
+    flex-direction: column;
+    padding-right: 0;
+    gap: 15px;
+  }
+
+  .layout-control-container {
+    grid-template-columns: 1fr;
+    padding: 0 15px 30px;
+  }
+
+  .scene-3d-wrapper { height: 300px; }
+  .isometric-grid { gap: 30px; transform: scale(0.65) rotateX(60deg) rotateZ(-45deg); }
+  .canvas-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+  .details-header { flex-direction: column; align-items: flex-start !important; gap: 15px; }
+  .mesa-mini-plate { width: 100%; }
+}
 </style>

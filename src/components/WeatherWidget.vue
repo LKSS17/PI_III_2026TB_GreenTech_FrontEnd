@@ -26,4 +26,16 @@
 .weather-info { display: flex; align-items: center; gap: 8px; color: var(--primary-green); font-weight: 700; border-right: 2px solid var(--glass-border); padding-right: 15px; }
 .weather-icon { color: var(--accent-terracota); font-size: 1.8rem; }
 .time-info { color: var(--primary-dark); font-family: "Poppins", sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; }
+
+/* =========================================
+   RESPONSIVIDADE DO WIDGET
+   ========================================= */
+@media (max-width: 768px) {
+  .weather-time-container {
+    margin: 10px 0 0 0 !important;
+
+    width: 100%;
+    justify-content: center;
+  }
+}
 </style>

@@ -2,18 +2,19 @@
   <Sidebar />
   <main class="main-content">
 
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-right: 40px; padding-top: 10px;">
+    <div class="dashboard-top-bar">
       <DashHeader
         title="Painel Geral"
         subtitle="Visão estratégica da infraestrutura, produção e próximas colheitas."
       />
-      <WeatherWidget />
+      <div class="widget-wrapper">
+        <WeatherWidget />
+      </div>
     </div>
 
-    <section style="display: flex; flex-direction: column; gap: 30px; padding: 20px 40px; width: 100%; max-width: 1400px; margin: 0 auto;">
+    <section class="dashboard-content">
 
-      <div class="kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; margin-bottom: 25px;">
-
+      <div class="kpi-grid">
         <div class="sensor-card kpi-card">
           <div class="kpi-icon" style="background: rgba(2, 136, 209, 0.1); color: #0288d1;"><span class="material-symbols-outlined">view_in_ar</span></div>
           <div class="kpi-data">
@@ -45,34 +46,33 @@
             <p>Capacidade de Plantio</p>
           </div>
         </div>
-
       </div>
 
       <div class="telemetry-grid">
 
         <div class="sensor-card">
-          <h3 style="color: var(--primary-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+          <h3 class="card-title">
             <span class="material-symbols-outlined" style="color: var(--primary-green);">alarm</span> Maturação e Colheitas
           </h3>
 
-          <div v-if="lotesMaisProximosColheita.length === 0" style="color: #999; font-style: italic; padding: 10px; text-align: center;">
+          <div v-if="lotesMaisProximosColheita.length === 0" class="empty-state">
             Nenhum lote em maturação no momento.
           </div>
 
-          <div v-else style="display: flex; flex-direction: column; gap: 18px;">
-            <div v-for="l in lotesMaisProximosColheita" :key="l.id" style="display: flex; flex-direction: column; gap: 6px;">
-              <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 700; color: #444;">
+          <div v-else class="list-container">
+            <div v-for="l in lotesMaisProximosColheita" :key="l.id" class="list-item">
+              <div class="item-header">
                 <span>LOTE #{{ l.id }} — {{ l.nomeCultura }}</span>
                 <span :style="{ color: l.porcentagem >= 90 ? '#e65100' : 'var(--primary-green)' }">{{ l.porcentagem }}%</span>
               </div>
 
-              <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden;">
-                <div style="height: 100%; transition: width 0.5s ease-in-out;" :style="{ width: l.porcentagem + '%', background: l.porcentagem >= 90 ? '#e65100' : 'var(--primary-green)' }"></div>
+              <div class="progress-track">
+                <div class="progress-fill" :style="{ width: l.porcentagem + '%', background: l.porcentagem >= 90 ? '#e65100' : 'var(--primary-green)' }"></div>
               </div>
 
-              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #777;">
+              <div class="item-footer">
                 <span>Mesa {{ l.mesa_id }} | Vol: {{ parseFloat(l.quantidade) }}</span>
-                <span v-if="l.diasRestantes > 0" style="font-weight: 600;">Tempo Extimado: {{ l.diasRestantes }} dias</span>
+                <span v-if="l.diasRestantes > 0" style="font-weight: 600;">Tempo Estimado: {{ l.diasRestantes }} dias</span>
                 <span v-else style="color: #d32f2f; font-weight: 700;">Colheita Pendente</span>
               </div>
             </div>
@@ -80,37 +80,36 @@
         </div>
 
         <div class="sensor-card">
-          <h3 style="color: var(--primary-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+          <h3 class="card-title">
             <span class="material-symbols-outlined" style="color: #0288d1;">history</span> Atividades Recentes
           </h3>
 
-          <div v-if="movimentacoesRecentes.length === 0" style="color: #999; font-style: italic; padding: 10px; text-align: center;">
+          <div v-if="movimentacoesRecentes.length === 0" class="empty-state">
             Sem movimentações recentes registradas.
           </div>
 
-          <div v-else style="display: flex; flex-direction: column; gap: 12px;">
-            <div v-for="m in movimentacoesRecentes" :key="m.id" style="display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.04);">
+          <div v-else class="list-container">
+            <div v-for="m in movimentacoesRecentes" :key="m.id" class="activity-item">
 
-              <div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
-                   :style="{ background: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#e8f5e9' : '#ffebee', color: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#2e7d32' : '#c62828' }">
-                <span class="material-symbols-outlined" style="font-size: 1.2rem;">
+              <div class="activity-icon" :style="{ background: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#e8f5e9' : '#ffebee', color: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#2e7d32' : '#c62828' }">
+                <span class="material-symbols-outlined">
                   {{ m.tipo_movimentacao.toLowerCase() === 'entrada' ? 'arrow_downward' : 'arrow_upward' }}
                 </span>
               </div>
 
-              <div style="flex: 1;">
-                <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary-dark);">Lote #{{ m.lote_id }} — {{ m.motivo }}</div>
-                <div style="font-size: 0.75rem; color: #888;">{{ new Date(m.data_movimentacao).toLocaleString('pt-BR') }}</div>
+              <div class="activity-details">
+                <div class="activity-name">Lote #{{ m.lote_id }} — {{ m.motivo }}</div>
+                <div class="activity-date">{{ new Date(m.data_movimentacao).toLocaleString('pt-BR') }}</div>
               </div>
 
-              <div style="font-weight: bold; font-size: 1rem;" :style="{ color: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#2e7d32' : '#c62828' }">
+              <div class="activity-qty" :style="{ color: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#2e7d32' : '#c62828' }">
                 {{ m.tipo_movimentacao.toLowerCase() === 'entrada' ? '+' : '-' }}{{ parseFloat(m.quantidade) }}
               </div>
             </div>
           </div>
 
-          <div style="text-align: center; margin-top: auto; padding-top: 15px;">
-            <router-link to="/estoque" style="font-size: 0.85rem; color: var(--primary-green); font-weight: 600; text-decoration: none;">Ver Histórico Completo &rarr;</router-link>
+          <div class="card-link-footer">
+            <router-link to="/estoque">Ver Histórico Completo &rarr;</router-link>
           </div>
         </div>
 
@@ -124,7 +123,7 @@
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from '@/components/Footer.vue';
-import DashHeader from '@/components/DashHeader.vue'; // <-- Importado
+import DashHeader from '@/components/DashHeader.vue';
 import WeatherWidget from '@/components/WeatherWidget.vue';
 
 const lotes = ref([]);
@@ -177,6 +176,37 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* =========================================
+   ESTRUTURA BASE DO DASHBOARD (Desktop)
+   ========================================= */
+
+.dashboard-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-right: 40px;
+  padding-top: 10px;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 20px 40px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 25px;
+}
+
 .telemetry-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -184,6 +214,10 @@ onMounted(async () => {
   width: 100%;
   max-width: 1200px;
 }
+
+/* =========================================
+   COMPONENTES E CARTÕES
+   ========================================= */
 
 .sensor-card {
   background: var(--glass-bg);
@@ -234,5 +268,146 @@ onMounted(async () => {
   font-size: 0.85rem;
   margin: 5px 0 0 0;
   font-weight: 500;
+}
+
+/* Títulos, Listas e Barras de Progresso */
+.card-title {
+  color: var(--primary-dark);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+}
+
+.empty-state {
+  color: #999;
+  font-style: italic;
+  padding: 10px;
+  text-align: center;
+}
+
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #444;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* Lista de Atividades */
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-icon span {
+  font-size: 1.2rem;
+}
+
+.activity-details {
+  flex: 1;
+}
+
+.activity-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--primary-dark);
+}
+
+.activity-date {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.activity-qty {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.card-link-footer {
+  text-align: center;
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+.card-link-footer a {
+  font-size: 0.85rem;
+  color: var(--primary-green);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* =========================================
+   RESPONSIVIDADE (Mobile)
+   ========================================= */
+
+@media (max-width: 768px) {
+  .dashboard-top-bar {
+    flex-direction: column;
+    padding-right: 0;
+    gap: 15px;
+  }
+
+  .dashboard-content {
+    padding: 20px 15px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .item-footer {
+    flex-direction: column;
+    gap: 2px;
+  }
 }
 </style>
