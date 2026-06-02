@@ -158,11 +158,11 @@ onMounted(async () => {
   const h = { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
   try {
     const [resLotes, resCulturas, resEstufas, resMesas, resEstoque] = await Promise.all([
-      fetch('http://127.0.0.1:8000/api/lotes/', { headers: h }),
-      fetch('http://127.0.0.1:8000/api/cultura/', { headers: h }),
-      fetch('http://127.0.0.1:8000/api/estufa/', { headers: h }),
-      fetch('http://127.0.0.1:8000/api/mesa/', { headers: h }),
-      fetch('http://127.0.0.1:8000/api/estoque/', { headers: h })
+      fetch('/api/lotes/', { headers: h }),
+      fetch('/api/cultura/', { headers: h }),
+      fetch('/api/estufa/', { headers: h }),
+      fetch('/api/mesa/', { headers: h }),
+      fetch('/api/estoque/', { headers: h })
     ]);
 
     if (resLotes.ok) lotes.value = await resLotes.json();

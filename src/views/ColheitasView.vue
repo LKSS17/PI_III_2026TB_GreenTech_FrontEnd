@@ -210,10 +210,10 @@ const carregarDados = async () => {
   const headers = { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
   try {
     const [resLotes, resCulturas, resColheitas, resFuncionarios] = await Promise.all([
-      fetch('http://127.0.0.1:8000/api/lotes/', { headers }),
-      fetch('http://127.0.0.1:8000/api/cultura/', { headers }),
-      fetch('http://127.0.0.1:8000/api/colheita/', { headers }),
-      fetch('http://127.0.0.1:8000/api/funcionarios/', { headers }) // <-- BUSCA OS FUNCIONÁRIOS (Plural ou Singular dependendo da sua URL)
+      fetch('/api/lotes/', { headers }),
+      fetch('/api/cultura/', { headers }),
+      fetch('/api/colheita/', { headers }),
+      fetch('/api/funcionarios/', { headers })
     ]);
 
     if (resLotes.ok) {
@@ -241,7 +241,7 @@ const salvarColheita = async () => {
   };
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/colheita/', {
+    const res = await fetch('/api/colheita/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(payload)

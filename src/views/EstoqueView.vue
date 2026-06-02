@@ -245,10 +245,10 @@ const carregarDadosBase = async () => {
   const headers = { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
   try {
     const [resLotes, resCulturas, resColheitas, resEstoque] = await Promise.all([
-      fetch('http://127.0.0.1:8000/api/lotes/', { headers }),
-      fetch('http://127.0.0.1:8000/api/cultura/', { headers }),
-      fetch('http://127.0.0.1:8000/api/colheita/', { headers }),
-      fetch('http://127.0.0.1:8000/api/estoque/', { headers })
+      fetch('/api/lotes/', { headers }),
+      fetch('/api/cultura/', { headers }),
+      fetch('/api/colheita/', { headers }),
+      fetch('/api/estoque/', { headers })
     ]);
 
     if (resLotes.ok) lotes.value = await resLotes.json();
@@ -281,7 +281,7 @@ const salvarMovimentacao = async () => {
   const payload = { ...form.value, unidade: loteAlvo ? loteAlvo.unidade : 'Unidades' };
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/estoque/', {
+    const res = await fetch('/api/estoque/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(payload)
@@ -304,7 +304,7 @@ const excluirMovimentacao = async (id) => {
   if (!confirm(`TEM CERTEZA? Deseja excluir permanentemente este registro do histórico?`)) return;
   const token = localStorage.getItem('access_token');
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/estoque/${id}/`, {
+    const res = await fetch(`/api/estoque/${id}/`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });

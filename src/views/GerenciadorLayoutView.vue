@@ -166,8 +166,8 @@ const carregarDadosEspaciais = async () => {
 
   try {
     const [resEstufas, resMesas] = await Promise.all([
-      fetch('http://127.0.0.1:8000/api/estufa/', { headers }),
-      fetch('http://127.0.0.1:8000/api/mesa/', { headers })
+      fetch('/api/estufa/', { headers }),
+      fetch('/api/mesa/', { headers })
     ]);
 
     if (resEstufas.ok) estufas.value = await resEstufas.json();
@@ -190,7 +190,7 @@ const selecionarEstufa = (estufa) => {
 const cadastrarEstufa = async () => {
   const token = localStorage.getItem('access_token');
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/estufa/', {
+    const res = await fetch('/api/estufa/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(novaEstufa.value)
@@ -209,7 +209,7 @@ const cadastrarEstufa = async () => {
 const cadastrarMesa = async () => {
   const token = localStorage.getItem('access_token');
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/mesa/', {
+    const res = await fetch('/api/mesa/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(novaMesa.value)
@@ -234,7 +234,7 @@ const excluirEstufa = async (id) => {
 
   const token = localStorage.getItem('access_token');
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/estufa/${id}/`, {
+    const res = await fetch(`/api/estufa/${id}/`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -256,7 +256,7 @@ const excluirMesa = async (id) => {
 
   const token = localStorage.getItem('access_token');
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/mesa/${id}/`, {
+    const res = await fetch(`/api/mesa/${id}/`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });

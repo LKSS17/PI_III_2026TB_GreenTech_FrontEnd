@@ -35,7 +35,7 @@ const salvarPerfil = async () => {
   salvandoPerfil.value = true;
   try {
     const payload = { nome_completo: nomeCompleto.value, username: nomeUsuario.value, email: emailUsuario.value, telefone: telefoneUsuario.value };
-    const response = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
+    const response = await fetch('/api/funcionarios/me/', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify(payload)
@@ -69,7 +69,7 @@ const alterarSenha = async () => {
   if (!senhaAtual.value || !novaSenha.value) { erroPerfil.value = 'Preencha todos os campos de senha.'; return; }
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/funcionarios/me/alterar-senha/', {
+    const response = await fetch('/api/funcionarios/me/alterar-senha/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ senha_atual: senhaAtual.value, nova_senha: novaSenha.value, confirmar_senha: confirmarSenha.value })
@@ -107,7 +107,7 @@ const buscarUsuario = async () => {
   if (!token) return;
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
+    const response = await fetch('/api/funcionarios/me/', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` }
     });

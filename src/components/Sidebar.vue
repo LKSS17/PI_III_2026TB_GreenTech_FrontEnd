@@ -132,7 +132,7 @@ const buscarUsuario = async () => {
   const token = localStorage.getItem('access_token')
   if (!token) return
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/funcionarios/me/', {
+    const res = await fetch('/api/funcionarios/me/', {
       headers: { Authorization: `Bearer ${token}` }
     })
     if (!res.ok) return

@@ -103,14 +103,14 @@ const form = ref({ nome_cultura: '', descricao: '', tempo_medio_colheita: 0, tem
 const culturasFiltradas = computed(() => culturas.value.filter(c => c.nome_cultura.toLowerCase().includes(busca.value.toLowerCase())));
 
 const carregar = async () => {
-  const res = await fetch('http://127.0.0.1:8000/api/cultura/', { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } });
+  const res = await fetch('/api/cultura/', { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } });
   if (res.ok) culturas.value = await res.json();
 };
 
 const selecionar = (c) => { culturaSelecionada.value = c; modoCadastro.value = false; };
 
 const salvarCultura = async () => {
-  await fetch('http://127.0.0.1:8000/api/cultura/', {
+  await fetch('/api/cultura/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
     body: JSON.stringify(form.value)
@@ -121,7 +121,7 @@ const salvarCultura = async () => {
 
 const deletar = async (id) => {
   if(!confirm("Excluir esta cultura?")) return;
-  await fetch(`http://127.0.0.1:8000/api/cultura/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } });
+  await fetch(`/api/cultura/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } });
   culturaSelecionada.value = null;
   carregar();
 };

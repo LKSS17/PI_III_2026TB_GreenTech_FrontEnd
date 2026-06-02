@@ -55,7 +55,7 @@ const leiturasClima = ref([]);
 const carregarDadosSensores = async () => {
   const token = localStorage.getItem('access_token');
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/clima/', {
+    const res = await fetch('/api/clima/', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {

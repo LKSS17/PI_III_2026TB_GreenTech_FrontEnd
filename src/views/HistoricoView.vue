@@ -103,7 +103,7 @@ const carregarLogs = async () => {
   const token = localStorage.getItem('access_token');
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/api/funcionarios/auditoria/', {
+    const res = await fetch('/api/funcionarios/auditoria/', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
