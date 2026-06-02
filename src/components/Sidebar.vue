@@ -1,47 +1,48 @@
 <template>
-  <aside class="sidebar">
+  <aside class="sidebar" :class="{ 'mobile-open': menuAberto }">
     <div class="sidebar-header">
       <span class="material-symbols-outlined sidebar-icon">potted_plant</span>
       <h2>GreenTech</h2>
+
+      <button class="close-mobile-btn" @click="closeMenu">
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
 
     <ul class="sidebar-links">
-      <!-- Visão Geral -->
       <li class="section-label">
         <div class="menu-separator"></div>
         <span>Visão Geral</span>
       </li>
       <li>
-        <router-link to="/dashboard" active-class="active">
+        <router-link to="/dashboard" active-class="active" @click="closeMenu">
           <span class="material-symbols-outlined">dashboard</span>
           <span class="link-text">Painel Geral</span>
         </router-link>
       </li>
-      <!-- Gestão Agrícola (fluxo: Safra → Plantação → Sensores) -->
       <li class="section-label">
         <div class="menu-separator"></div>
         <span>Gestão Agrícola</span>
       </li>
 
       <li>
-        <router-link to="/layout" active-class="active">
+        <router-link to="/layout" active-class="active" @click="closeMenu">
           <span class="material-symbols-outlined">view_in_ar</span>
           <span class="link-text">Gêmeo Virtual 3D</span>
         </router-link>
       </li>
 
-      <li><router-link to="/culturas" active-class="active"><span class="material-symbols-outlined">science</span><span class="link-text">Catálogo de Culturas</span></router-link></li>
-      <li><router-link to="/estoque" active-class="active"><span class="material-symbols-outlined">inventory_2</span><span class="link-text">Estoque / Insumos</span></router-link></li>
-      <li><router-link to="/lotes" active-class="active"><span class="material-symbols-outlined">psychiatry</span><span class="link-text">Lotes de Plantio</span></router-link></li>
-      <li><router-link to="/colheitas" active-class="active"><span class="material-symbols-outlined">agriculture</span><span class="link-text">Registro de Colheita</span></router-link></li>
+      <li><router-link to="/culturas" active-class="active" @click="closeMenu"><span class="material-symbols-outlined">science</span><span class="link-text">Catálogo de Culturas</span></router-link></li>
+      <li><router-link to="/estoque" active-class="active" @click="closeMenu"><span class="material-symbols-outlined">inventory_2</span><span class="link-text">Estoque / Insumos</span></router-link></li>
+      <li><router-link to="/lotes" active-class="active" @click="closeMenu"><span class="material-symbols-outlined">psychiatry</span><span class="link-text">Lotes de Plantio</span></router-link></li>
+      <li><router-link to="/colheitas" active-class="active" @click="closeMenu"><span class="material-symbols-outlined">agriculture</span><span class="link-text">Registro de Colheita</span></router-link></li>
 
-      <!-- Monitoramento -->
       <li class="section-label">
         <div class="menu-separator"></div>
         <span>Monitoramento</span>
       </li>
       <li>
-        <router-link to="/alertas" active-class="active">
+        <router-link to="/alertas" active-class="active" @click="closeMenu">
           <span class="material-symbols-outlined">notifications_active</span>
           <span class="link-text">Alertas</span>
           <span v-if="alertasAtivos > 0" class="badge-count">{{ alertasAtivos }}</span>
@@ -49,44 +50,43 @@
       </li>
       <div v-if="isGerente || isAdmin">
         <li>
-          <router-link to="/historico" active-class="active">
+          <router-link to="/historico" active-class="active" @click="closeMenu">
             <span class="material-symbols-outlined">history</span>
             <span class="link-text">Histórico</span>
           </router-link>
         </li>
       </div>
       <li>
-        <router-link to="/sensores" active-class="active">
+        <router-link to="/sensores" active-class="active" @click="closeMenu">
           <span class="material-symbols-outlined">detector</span>
           <span class="link-text">Sensores</span>
         </router-link>
       </li>
       <li>
-        <router-link to="/irrigacao" active-class="active">
+        <router-link to="/irrigacao" active-class="active" @click="closeMenu">
           <span class="material-symbols-outlined">water_drop</span>
           <span class="link-text">Irrigação</span>
         </router-link>
       </li>
 
-      <!-- Conta -->
       <li class="section-label">
         <div class="menu-separator"></div>
         <span>Conta</span>
       </li>
       <li>
-        <router-link to="/perfil" active-class="active">
+        <router-link to="/perfil" active-class="active" @click="closeMenu">
           <span class="material-symbols-outlined">account_circle</span>
           <span class="link-text">Meu Perfil</span>
         </router-link>
       </li>
       <li>
-        <router-link to="/configuracoes" active-class="active">
+        <router-link to="/configuracoes" active-class="active" @click="closeMenu">
           <span class="material-symbols-outlined">settings</span>
           <span class="link-text">Configurações</span>
         </router-link>
       </li>
       <li>
-        <a href="#" @click.prevent="fazerLogout">
+        <a href="#" @click.prevent="fazerLogout(); closeMenu()">
           <span class="material-symbols-outlined">logout</span>
           <span class="link-text">Sair</span>
         </a>
@@ -106,11 +106,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import {carregarUsuarioLogado} from "@/assets/JS/verificarPermissao.js";
 
 const router = useRouter()
+
+const { menuAberto, closeMenu } = inject('menuContext', {
+  menuAberto: ref(false),
+  closeMenu: () => {}
+})
 
 const nomeUsuario  = ref('')
 const cargoUsuario = ref('')
@@ -158,10 +163,10 @@ const fazerLogout = () => {
 }
 
 onMounted( () =>
-  {
-    buscarUsuario();
-    verificarAcessos();
-  });
+{
+  buscarUsuario();
+  verificarAcessos();
+});
 </script>
 
 <style scoped>
@@ -174,7 +179,7 @@ onMounted( () =>
   flex-direction: column;
   background-color: var(--primary-green);
   padding: 25px 15px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   overflow: hidden;
 }
@@ -188,6 +193,7 @@ onMounted( () =>
   margin-bottom: 30px;
   padding-left: 5px;
   flex-shrink: 0;
+  position: relative;
 }
 .sidebar-icon { color: var(--accent-terracota); font-size: 2rem; }
 .sidebar-header h2 {
@@ -201,6 +207,18 @@ onMounted( () =>
   transition: opacity 0.3s;
 }
 .sidebar:hover .sidebar-header h2 { opacity: 1; }
+
+/* Botão de fechar (escondido no PC) */
+.close-mobile-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 1.8rem;
+  position: absolute;
+  right: 0;
+  cursor: pointer;
+}
 
 /* Links */
 .sidebar-links {
@@ -324,4 +342,33 @@ onMounted( () =>
 .sidebar:hover .user-detail { opacity: 1; }
 .user-detail h3 { color: #fff; font-size: 0.9rem; font-weight: 600; }
 .user-detail span { color: rgba(255,255,255,0.55); font-size: 0.78rem; }
+
+/* --- RESPONSIVIDADE MOBILE --- */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+    box-shadow: 5px 0 20px rgba(0,0,0,0);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 5px 0 20px rgba(0,0,0,0.5);
+  }
+
+  .close-mobile-btn {
+    display: block;
+  }
+
+  .sidebar.mobile-open .sidebar-header h2,
+  .sidebar.mobile-open .section-label span,
+  .sidebar.mobile-open .link-text,
+  .sidebar.mobile-open .badge-count,
+  .sidebar.mobile-open .user-detail {
+    opacity: 1;
+  }
+  .sidebar.mobile-open .menu-separator {
+    opacity: 0;
+  }
+}
 </style>

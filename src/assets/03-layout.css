@@ -1135,15 +1135,49 @@ input::-webkit-inner-spin-button {
   .estufa-resumo { grid-template-columns: repeat(3, 1fr); }
   .limite-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* --- RESPONSIVIDADE MOBILE (Telemóveis e Tablets pequenos) --- */
 @media (max-width: 768px) {
-  .sensores-status-bar { flex-direction: column; align-items: flex-start; }
-  .btn-refresh { margin-left: 0; width: 100%; justify-content: center; }
-  .mapa-grid { grid-template-columns: 1fr 1fr; }
-  .estufa-resumo { grid-template-columns: 1fr 1fr; }
-  .agendamento-card { grid-template-columns: 1fr; }
-  .lote-info-grid { grid-template-columns: 1fr; }
-  .perfil-form-grid { grid-template-columns: 1fr; }
-  .limite-grid { grid-template-columns: 1fr; }
-  .dado-action-card { flex-direction: column; text-align: center; }
-  .sobre-grid { grid-template-columns: 1fr; }
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 5px 0 20px rgba(0,0,0,0.2);
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding-top: 20px !important;
+  }
+
+  .dash-header,
+  .registration-container,
+  .sensores-grid-container,
+  .historico-container,
+  .irrig-summary-bar,
+  .irrig-section,
+  .estufas-split-view,
+  .estufa-resumo,
+  .lotes-split-view,
+  .lotes-action-bar,
+  .perfil-layout,
+  .config-layout {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  .dash-header h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .btn-generate,
+  .btn-save,
+  .form-actions {
+    width: 100%;
+    justify-content: center;
+    flex-direction: column;
+  }
 }
