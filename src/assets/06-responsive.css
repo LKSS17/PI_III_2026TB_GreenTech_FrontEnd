@@ -1,0 +1,126 @@
+@media (max-width: 992px) {
+  .inventory-split-view,
+  .split-view,
+  .config-layout,
+  .perfil-layout,
+  .layout-control-container {
+    grid-template-columns: 1fr;
+  }
+
+  .irrig-summary-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agendamento-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0;
+    padding-top: 20px !important;
+  }
+
+  .dashboard-top-bar,
+  .page-top-bar {
+    flex-direction: column;
+    padding: 10px var(--page-inline-padding-mobile) 0 !important;
+    gap: var(--space-4);
+  }
+
+  .dash-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-left: var(--page-inline-padding-mobile) !important;
+    padding-right: var(--page-inline-padding-mobile) !important;
+  }
+
+  .dash-header h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .page-body,
+  .registration-container,
+  .registration-container-estoque,
+  .sensores-grid-container,
+  .historico-container,
+  .irrig-summary-bar,
+  .irrig-section,
+  .auditoria-container,
+  .perfil-layout,
+  .config-layout,
+  .layout-control-container,
+  .dashboard-content {
+    padding-left: var(--page-inline-padding-mobile) !important;
+    padding-right: var(--page-inline-padding-mobile) !important;
+  }
+
+  .grid-form,
+  .form-grid-layout,
+  .form-cols,
+  .perfil-form-grid,
+  .detail-grid,
+  .info-grid,
+  .lote-info-grid,
+  .detalhe-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-bar,
+  .action-bar-estoque,
+  .lotes-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box,
+  .search-box-estoque {
+    width: 100%;
+  }
+
+  .form-card {
+    padding: 25px;
+  }
+
+  .btn-generate,
+  .btn-save,
+  .btn-primary,
+  .btn-outline,
+  .btn-delete,
+  .btn-danger,
+  .form-actions,
+  .form-actions-right,
+  .perfil-form-actions {
+    width: 100%;
+  }
+
+  .form-actions,
+  .form-actions-right,
+  .perfil-form-actions {
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .irrig-summary-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .sensores-status-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .weather-time-container {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .footer-banner {
+    height: 120px;
+  }
+}

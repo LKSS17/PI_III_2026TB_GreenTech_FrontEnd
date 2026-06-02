@@ -1,16 +1,6 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background-color: #f4f1ea;
-  min-height: 100vh;
-  width: 100%;
-}
-
-#app {
-  width: 100%;
-  min-height: 100vh;
-}
+@import './01-tokens.css';
+@import './02-reset.css';
+@import './03-layout.css';
+@import './04-components.css';
+@import './05-modules.css';
+@import './06-responsive.css';
