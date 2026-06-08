@@ -42,9 +42,9 @@
               Lotes em Desenvolvimento: <strong>{{ item.quantidade_lotes }}</strong>
             </div>
 
-            <div class="mini-card-qty" style="color: var(--primary-dark); font-size: 1.1rem; margin-top: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
-              <span class="material-symbols-outlined" style="font-size: 1.2rem;">psychiatry</span>
-              Saldo Vivo: {{ parseFloat(item.saldo_total) }} {{ item.unidade }}
+            <div class="mini-card-qty" style="color: #673ab7; font-size: 1rem; margin-top: 8px; font-weight: 600;">
+              <span class="material-symbols-outlined" style="font-size: 1.1rem;">monitoring</span>
+              Taxa de Produção: {{ item.taxa_producao ? parseFloat(item.taxa_producao).toFixed(1) : '0.0' }}%
             </div>
 
             <div class="mini-card-qty" style="color: #673ab7; font-size: 1rem; margin-top: 8px; font-weight: 600;">
@@ -108,8 +108,8 @@
                 <span style="font-size: 1.4rem; font-weight: bold; color: var(--primary-dark);">{{ parseFloat(culturaSelecionada.saldo_total) }} {{ culturaSelecionada.unidade }}</span>
               </div>
               <div style="background: rgba(103, 58, 183, 0.05); padding: 15px; border-radius: 10px; border: 1px solid rgba(103, 58, 183, 0.1);">
-                <span style="font-size: 0.8rem; color: #666; font-weight: 600; display: block; margin-bottom: 5px;">TOTAL COLHIDO (HISTÓRICO)</span>
-                <span style="font-size: 1.4rem; font-weight: bold; color: #673ab7;">{{ parseFloat(culturaSelecionada.total_colhido) }} {{ culturaSelecionada.unidade }}</span>
+                <span style="font-size: 0.8rem; color: #666; font-weight: 600; display: block; margin-bottom: 5px;">TAXA DE PRODUÇÃO</span>
+                <span style="font-size: 1.4rem; font-weight: bold; color: #673ab7;">{{ culturaSelecionada.taxa_producao ? parseFloat(culturaSelecionada.taxa_producao).toFixed(1) : '0.0' }}%</span>
               </div>
             </div>
 
@@ -200,7 +200,8 @@ const estoqueConsolidado = computed(() => {
       cultura_id: c.id,
       saldo_total: 0,
       quantidade_lotes: 0,
-      total_colhido: 0,
+      taxa_producao: c.taxa_producao || 0,
+      total_colhido: c.total_colhido || 0,
       unidade: 'Unidades'
     };
   });
@@ -213,17 +214,9 @@ const estoqueConsolidado = computed(() => {
     }
   });
 
-  colheitas.value.forEach(colheita => {
-    const loteOrigem = lotes.value.find(l => l.id === colheita.lote_id);
-    if (loteOrigem && consolidados[loteOrigem.cultura_id]) {
-      consolidados[loteOrigem.cultura_id].total_colhido += parseFloat(colheita.quantidade_colhida);
-      consolidados[loteOrigem.cultura_id].unidade = loteOrigem.unidade;
-    }
-  });
-
   return Object.values(consolidados).filter(item =>
     item.nome_cultura.toLowerCase().includes(busca.value.toLowerCase()) &&
-    (item.saldo_total > 0 || item.total_colhido > 0)
+    (item.saldo_total > 0 || item.total_colhido > 0 || item.taxa_producao > 0)
   );
 });
 
