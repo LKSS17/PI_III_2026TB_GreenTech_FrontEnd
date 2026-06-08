@@ -19,6 +19,9 @@ const sucessoPerfil = ref('');
 const dadosOriginais = ref({});
 const diasNoSistema = ref(0);
 
+const totalLotes = ref(0);
+const totalEstufas = ref(0);
+
 const senhaAtual = ref('');
 const novaSenha = ref('');
 const confirmarSenha = ref('');
@@ -128,6 +131,26 @@ const buscarUsuario = async () => {
   } catch (error) {
     console.error(error);
   }
+
+  // Buscar totais de lotes e estufas
+  try {
+    const [resLotes, resEstufas] = await Promise.all([
+      fetch('/api/lotes/', { headers: { 'Authorization': `Bearer ${token}` } }),
+      fetch('/api/estufa/', { headers: { 'Authorization': `Bearer ${token}` } })
+    ]);
+
+    if (resLotes.ok) {
+      const lotesData = await resLotes.json();
+      totalLotes.value = lotesData.length;
+    }
+
+    if (resEstufas.ok) {
+      const estufasData = await resEstufas.json();
+      totalEstufas.value = estufasData.length;
+    }
+  } catch (error) {
+    console.error("Erro ao buscar métricas:", error);
+  }
 };
 
 onMounted(buscarUsuario);
@@ -160,8 +183,8 @@ onMounted(buscarUsuario);
         </span>
 
         <div class="perfil-stats">
-          <div class="stat-item"><div class="stat-value">5</div><div class="stat-label">Lotes registrados</div></div>
-          <div class="stat-item"><div class="stat-value">3</div><div class="stat-label">Estufas gerenciadas</div></div>
+          <div class="stat-item"><div class="stat-value">{{ totalLotes }}</div><div class="stat-label">Lotes registrados</div></div>
+          <div class="stat-item"><div class="stat-value">{{ totalEstufas }}</div><div class="stat-label">Estufas gerenciadas</div></div>
           <div class="stat-item"><div class="stat-value">{{ diasNoSistema }}d</div><div class="stat-label">No sistema</div></div>
         </div>
       </div>

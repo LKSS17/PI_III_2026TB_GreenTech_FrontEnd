@@ -36,9 +36,10 @@
               <span class="badge badge-good">Colhido</span>
             </div>
             <div class="mini-card-cultura">{{ new Date(c.data_colheita).toLocaleDateString('pt-BR') }}</div>
-            <div class="mini-card-qty" style="color: var(--primary-dark); font-size: 1.05rem; margin-top: 8px;">
-              <span class="material-symbols-outlined" style="font-size: 1.1rem;">shopping_basket</span>
-              {{ parseFloat(c.quantidade_colhida) }} Aproveitados
+
+            <div class="mini-card-qty" style="color: var(--primary-dark); font-size: 1.05rem; margin-top: 8px; font-weight: 600;">
+              <span class="material-symbols-outlined" style="font-size: 1.1rem;">monitoring</span>
+              Taxa de Colheita do Lote: {{ c.taxaProducao }}%
             </div>
           </div>
         </div>
@@ -104,13 +105,24 @@
               </div>
 
               <div class="detail-item full-width qty-destaque" style="background: rgba(76, 175, 80, 0.05); border: 1px dashed var(--primary-green);">
-                <label class="qty-label">Produção Aproveitada</label>
-                <span class="qty-value" style="color:#2e7d32;">{{ parseFloat(colheitaSelecionada.quantidade_colhida) }}</span>
+                <label class="qty-label">Taxa de Produção (Sucesso)</label>
+                <span class="qty-value" style="color:#2e7d32;">{{ colheitaSelecionada.taxaProducao }}%</span>
               </div>
 
-              <div class="detail-item full-width qty-destaque" style="background: rgba(244, 67, 54, 0.05); border: 1px dashed #f44336; margin-top: 10px;" v-if="parseFloat(colheitaSelecionada.quantidade_perda) > 0">
-                <label class="qty-label" style="color: #c62828;">Volume Descartado</label>
-                <span class="qty-value" style="color:#c62828;">{{ parseFloat(colheitaSelecionada.quantidade_perda) }}</span>
+              <div style="display: flex; gap: 15px; grid-column: 1 / -1; margin-top: 5px;">
+                <div class="detail-item" style="flex: 1; background: #f9f9f9; padding: 12px; border-radius: 8px;">
+                  <label style="font-size: 0.8rem;">Volume Aproveitado</label>
+                  <span style="color:#2e7d32; font-weight: bold; display: block; margin-top: 5px; font-size: 1.1rem;">
+                    {{ parseFloat(colheitaSelecionada.quantidade_colhida) }}
+                  </span>
+                </div>
+
+                <div class="detail-item" style="flex: 1; background: #fff5f5; padding: 12px; border-radius: 8px;" v-if="parseFloat(colheitaSelecionada.quantidade_perda) > 0">
+                  <label style="font-size: 0.8rem; color: #c62828;">Volume Descartado</label>
+                  <span style="color:#c62828; font-weight: bold; display: block; margin-top: 5px; font-size: 1.1rem;">
+                    {{ parseFloat(colheitaSelecionada.quantidade_perda) }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -137,7 +149,7 @@ const lotesAtivos = ref([]);
 const lotesGerais = ref([]);
 const culturas = ref([]);
 const colheitas = ref([]);
-const funcionarios = ref([]); // <-- NOVA VARIÁVEL
+const funcionarios = ref([]);
 
 const modoCadastro = ref(false);
 const colheitaSelecionada = ref(null);
@@ -149,12 +161,10 @@ const form = ref({
   quantidade_perda: 0,
 });
 
-// Calcula qual lote está selecionado no formulário para puxarmos o Total dele
 const loteSelecionadoParaColheita = computed(() => {
   return lotesAtivos.value.find(l => l.id === form.value.lote_id) || null;
 });
 
-// MÁGICA 1: Quando o usuário escolhe o lote, definimos o sucesso para 100%
 watch(() => form.value.lote_id, (novoLoteId) => {
   if (novoLoteId) {
     const lote = lotesAtivos.value.find(l => l.id === novoLoteId);
@@ -165,7 +175,6 @@ watch(() => form.value.lote_id, (novoLoteId) => {
   }
 });
 
-// MÁGICA 2: Quando ele mexe na barra (quantidade_colhida), calculamos a perda
 watch(() => form.value.quantidade_colhida, (novoValor) => {
   if (loteSelecionadoParaColheita.value) {
     const total = parseFloat(loteSelecionadoParaColheita.value.quantidade);
@@ -178,7 +187,6 @@ watch(() => form.value.quantidade_colhida, (novoValor) => {
 
 const historicoEnriquecido = computed(() => {
   return colheitas.value.map(colheita => {
-    // 1. Busca a Cultura
     const loteOrigem = lotesGerais.value.find(l => l.id === colheita.lote_id);
     let nomeCultura = 'Cultura Desconhecida';
     if (loteOrigem) {
@@ -186,16 +194,21 @@ const historicoEnriquecido = computed(() => {
       if (cultura) nomeCultura = cultura.nome_cultura;
     }
 
-    // 2. Busca o Auditor blindado contra tipos diferentes (String/Int) e nomes de campos diferentes
     const auditor = funcionarios.value.find(f => String(f.id) === String(colheita.funcionario_id));
-
     let nomeAuditor = `Auditor #${colheita.funcionario_id}`;
     if (auditor) {
-      // Tenta os nomes mais comuns do Django DRF. Se nenhum existir, mantém o "Auditor #ID"
       nomeAuditor = auditor.nome || auditor.nome_completo || auditor.first_name || auditor.username || nomeAuditor;
     }
 
-    return { ...colheita, nomeCultura, nomeAuditor };
+    // ALTERADO AQUI: Cálculo da Taxa de Produção Específica do Lote
+    const colhido = parseFloat(colheita.quantidade_colhida) || 0;
+    const perda = parseFloat(colheita.quantidade_perda) || 0;
+    const totalProcessado = colhido + perda;
+
+    // Calcula a porcentagem ou zera se der divisão por zero
+    const taxaProducao = totalProcessado > 0 ? ((colhido / totalProcessado) * 100).toFixed(1) : '0.0';
+
+    return { ...colheita, nomeCultura, nomeAuditor, taxaProducao };
   }).reverse();
 });
 
