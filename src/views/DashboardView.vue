@@ -48,8 +48,49 @@
         </div>
       </div>
 
-      <div class="telemetry-grid">
+      <div class="sensor-card full-width-card" style="margin-bottom: 25px;">
+        <h3 class="card-title">
+          <span class="material-symbols-outlined" style="color: var(--primary-dark);">pie_chart</span> Distribuição de Culturas por Estufa
+        </h3>
 
+        <div v-if="ocupacaoPorEstufa.length === 0" class="empty-state">
+          Nenhuma estufa cadastrada.
+        </div>
+
+        <div class="estufa-distribution-grid" v-else>
+          <div v-for="estufa in ocupacaoPorEstufa" :key="estufa.id" class="estufa-distribution-item">
+            <div class="estufa-header">
+              <strong>Estufa: {{ estufa.nome_setor || `#${estufa.id}` }}</strong>
+              <span class="estufa-total">{{ estufa.total > 0 ? estufa.total + ' Unidades' : 'Vazia' }}</span>
+            </div>
+
+            <div class="stacked-bar-container" v-if="estufa.total > 0">
+              <div
+                v-for="divisao in estufa.divisoes"
+                :key="divisao.id"
+                class="stacked-bar-segment"
+                :style="{ width: divisao.porcentagem + '%', backgroundColor: divisao.cor }"
+                :title="`${divisao.nome}: ${divisao.porcentagem}%`"
+              >
+                <span class="segment-label" v-if="divisao.porcentagem >= 15">{{ divisao.nome }}</span>
+              </div>
+            </div>
+
+            <div class="stacked-bar-container empty" v-else>
+              <div class="stacked-bar-segment empty-segment" style="width: 100%;">Disponível para Plantio</div>
+            </div>
+
+            <div class="distribution-legend" v-if="estufa.total > 0">
+              <div v-for="divisao in estufa.divisoes" :key="`leg-${divisao.id}`" class="legend-item">
+                <span class="color-dot" :style="{ backgroundColor: divisao.cor }"></span>
+                {{ divisao.nome }} <span class="legend-pct">({{ divisao.porcentagem }}%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="telemetry-grid">
         <div class="sensor-card">
           <h3 class="card-title">
             <span class="material-symbols-outlined" style="color: var(--primary-green);">alarm</span> Maturação e Colheitas
@@ -112,7 +153,6 @@
             <router-link to="/estoque">Ver Histórico Completo &rarr;</router-link>
           </div>
         </div>
-
       </div>
     </section>
     <Footer />
@@ -132,10 +172,64 @@ const estufas = ref([]);
 const mesas = ref([]);
 const estoque = ref([]);
 
+const coresCulturas = ['#4caf50', '#0288d1', '#ab47bc', '#ff9800', '#009688', '#e91e63', '#795548', '#607d8b'];
+
 const lotesAtivos = computed(() => lotes.value.filter(l => l.status !== 'CO' && l.status !== 'PE').length);
 const capacidadeTotal = computed(() => mesas.value.reduce((acc, m) => acc + parseFloat(m.capacidade_maxima || 0), 0));
-
 const movimentacoesRecentes = computed(() => estoque.value.slice(0, 4));
+
+const ocupacaoPorEstufa = computed(() => {
+  return estufas.value.map(estufa => {
+
+    const mesasEstufa = mesas.value.filter(m =>
+      String(m.estufa || m.estufa_id) === String(estufa.id)
+    );
+
+    const lotesEstufa = lotes.value.filter(l =>
+      mesasEstufa.some(m => String(m.id) === String(l.mesa || l.mesa_id)) &&
+      l.status !== 'CO' && l.status !== 'PE'
+    );
+
+    const mapCulturas = {};
+    let totalNaEstufa = 0;
+
+    lotesEstufa.forEach(lote => {
+      // DRF pode mandar cultura ou cultura_id
+      const cid = String(lote.cultura || lote.cultura_id);
+
+      if (!mapCulturas[cid]) {
+        const culturaObj = culturas.value.find(c => String(c.id) === cid);
+        mapCulturas[cid] = {
+          id: cid,
+          nome: culturaObj ? culturaObj.nome_cultura : `Cultura #${cid}`,
+          quantidade: 0
+        };
+      }
+
+      const qtd = parseFloat(lote.quantidade) || 0;
+      mapCulturas[cid].quantidade += qtd;
+      totalNaEstufa += qtd;
+    });
+
+    // 4. Transforma em array calculando a % e associando a cor
+    let divisoes = Object.values(mapCulturas).map((c, index) => {
+      const porcentagem = totalNaEstufa > 0 ? ((c.quantidade / totalNaEstufa) * 100).toFixed(1) : 0;
+      return {
+        ...c,
+        porcentagem: parseFloat(porcentagem),
+        cor: coresCulturas[index % coresCulturas.length]
+      };
+    });
+
+    divisoes.sort((a, b) => b.porcentagem - a.porcentagem);
+
+    return {
+      ...estufa,
+      total: totalNaEstufa,
+      divisoes
+    };
+  });
+});
 
 const lotesMaisProximosColheita = computed(() => {
   return lotes.value
@@ -177,7 +271,7 @@ onMounted(async () => {
 
 <style scoped>
 /* =========================================
-   ESTRUTURA BASE DO DASHBOARD (Desktop)
+   ESTRUTURA BASE DO DASHBOARD
    ========================================= */
 
 .dashboard-top-bar {
@@ -203,8 +297,6 @@ onMounted(async () => {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
   width: 100%;
-  max-width: 1200px;
-  margin-bottom: 25px;
 }
 
 .telemetry-grid {
@@ -212,7 +304,6 @@ onMounted(async () => {
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 25px;
   width: 100%;
-  max-width: 1200px;
 }
 
 /* =========================================
@@ -234,6 +325,10 @@ onMounted(async () => {
 .sensor-card:hover {
   transform: translateY(-5px);
   border-color: var(--primary-green);
+}
+
+.full-width-card {
+  width: 100%;
 }
 
 .kpi-card {
@@ -270,7 +365,6 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-/* Títulos, Listas e Barras de Progresso */
 .card-title {
   color: var(--primary-dark);
   margin-bottom: 15px;
@@ -287,6 +381,112 @@ onMounted(async () => {
   text-align: center;
 }
 
+/* =========================================
+   GRÁFICO STACKED BAR (Divisão)
+   ========================================= */
+
+.estufa-distribution-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+  margin-top: 10px;
+}
+
+.estufa-distribution-item {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.estufa-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.estufa-total {
+  font-weight: bold;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* A Barra Principal */
+.stacked-bar-container {
+  display: flex;
+  width: 100%;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 12px;
+}
+
+/* Os Segmentos Coloridos */
+.stacked-bar-segment {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.6s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.stacked-bar-segment:hover {
+  filter: brightness(1.1);
+}
+
+.segment-label {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+}
+
+.empty-segment {
+  background: #e0e0e0;
+  color: #888;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* Legenda do Gráfico */
+.distribution-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-pct {
+  color: #888;
+  font-weight: 600;
+}
+
+/* =========================================
+   LISTAS (Telemetria)
+   ========================================= */
 .list-container {
   display: flex;
   flex-direction: column;
@@ -327,7 +527,6 @@ onMounted(async () => {
   color: #777;
 }
 
-/* Lista de Atividades */
 .activity-item {
   display: flex;
   align-items: center;
@@ -385,7 +584,6 @@ onMounted(async () => {
 /* =========================================
    RESPONSIVIDADE (Mobile)
    ========================================= */
-
 @media (max-width: 768px) {
   .dashboard-top-bar {
     flex-direction: column;
@@ -397,11 +595,11 @@ onMounted(async () => {
     padding: 20px 15px;
   }
 
-  .kpi-grid {
+  .estufa-distribution-grid {
     grid-template-columns: 1fr;
   }
 
-  .telemetry-grid {
+  .kpi-grid, .telemetry-grid {
     grid-template-columns: 1fr;
   }
 
