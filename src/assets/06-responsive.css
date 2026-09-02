@@ -1,0 +1,85 @@
+/**
+ * 06-responsive.css
+ * Camada de responsividade global, ergonomia para campo e utilitários de viewport.
+ */
+
+/* ==========================================================================
+   1. ERGONOMIA TOUCH & DISPOSITIVOS MÓVEIS (Campo/Operação Rural)
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  /* Touch target mínimo de 44x44px conforme normas de acessibilidade (WCAG 2.1) */
+  button, 
+  .btn, 
+  .btn-primary, 
+  .btn-secondary,
+  .action-btn,
+  .pagination-btn,
+  input[type="button"],
+  input[type="submit"],
+  .select-input,
+  .form-control {
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 1rem;
+  }
+
+  /* Evita duplo toque para zoom acidental em botões */
+  button, a {
+    touch-action: manipulation;
+  }
+}
+
+/* ==========================================================================
+   2. CONTAINERS DE TABELAS RESPONSIVAS (Com indicador de scroll)
+   ========================================================================== */
+
+.table-responsive-wrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--cor-borda, #cfd8dc);
+  background: var(--cor-fundo-card, #ffffff);
+}
+
+/* Sombra suave indicadora de continuidade horizontal em telas pequenas */
+.table-responsive-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.08));
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+/* Em telas desktop normais, não há necessidade de forçar scroll visual */
+@media (min-width: 1025px) {
+  .table-responsive-wrapper::after {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   3. AJUSTES ESPECÍFICOS DE TELAS ULTRA-ESTREITAS (< 380px)
+   ========================================================================== */
+
+@media (max-width: 380px) {
+  .container, 
+  .page-container, 
+  .dashboard-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,611 @@
+<template>
+  <Sidebar />
+  <main class="main-content">
+
+    <div class="dashboard-top-bar">
+      <DashHeader
+        title="Painel Geral"
+        subtitle="Visão estratégica da infraestrutura, produção e próximas colheitas."
+      />
+      <div class="widget-wrapper">
+        <WeatherWidget />
+      </div>
+    </div>
+
+    <section class="dashboard-content">
+
+      <div class="kpi-grid">
+        <div class="sensor-card kpi-card">
+          <div class="kpi-icon" style="background: rgba(2, 136, 209, 0.1); color: #0288d1;"><span class="material-symbols-outlined">view_in_ar</span></div>
+          <div class="kpi-data">
+            <h3>{{ estufas.length }}</h3>
+            <p>Estufas Ativas</p>
+          </div>
+        </div>
+
+        <div class="sensor-card kpi-card">
+          <div class="kpi-icon" style="background: rgba(230, 81, 0, 0.1); color: #e65100;"><span class="material-symbols-outlined">layers</span></div>
+          <div class="kpi-data">
+            <h3>{{ mesas.length }}</h3>
+            <p>Mesas Alocadas</p>
+          </div>
+        </div>
+
+        <div class="sensor-card kpi-card">
+          <div class="kpi-icon" style="background: rgba(76, 175, 80, 0.1); color: var(--primary-green);"><span class="material-symbols-outlined">psychiatry</span></div>
+          <div class="kpi-data">
+            <h3>{{ lotesAtivos }}</h3>
+            <p>Lotes em Cultivo</p>
+          </div>
+        </div>
+
+        <div class="sensor-card kpi-card">
+          <div class="kpi-icon" style="background: rgba(103, 58, 183, 0.1); color: #673ab7;"><span class="material-symbols-outlined">speed</span></div>
+          <div class="kpi-data">
+            <h3>{{ capacidadeTotal }}</h3>
+            <p>Capacidade de Plantio</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sensor-card full-width-card" style="margin-bottom: 25px;">
+        <h3 class="card-title">
+          <span class="material-symbols-outlined" style="color: var(--primary-dark);">pie_chart</span> Distribuição de Culturas por Estufa
+        </h3>
+
+        <div v-if="ocupacaoPorEstufa.length === 0" class="empty-state">
+          Nenhuma estufa cadastrada.
+        </div>
+
+        <div class="estufa-distribution-grid" v-else>
+          <div v-for="estufa in ocupacaoPorEstufa" :key="estufa.id" class="estufa-distribution-item">
+            <div class="estufa-header">
+              <strong>Estufa: {{ estufa.nome_setor || `#${estufa.id}` }}</strong>
+              <span class="estufa-total">{{ estufa.total > 0 ? estufa.total + ' Unidades' : 'Vazia' }}</span>
+            </div>
+
+            <div class="stacked-bar-container" v-if="estufa.total > 0">
+              <div
+                v-for="divisao in estufa.divisoes"
+                :key="divisao.id"
+                class="stacked-bar-segment"
+                :style="{ width: divisao.porcentagem + '%', backgroundColor: divisao.cor }"
+                :title="`${divisao.nome}: ${divisao.porcentagem}%`"
+              >
+                <span class="segment-label" v-if="divisao.porcentagem >= 15">{{ divisao.nome }}</span>
+              </div>
+            </div>
+
+            <div class="stacked-bar-container empty" v-else>
+              <div class="stacked-bar-segment empty-segment" style="width: 100%;">Disponível para Plantio</div>
+            </div>
+
+            <div class="distribution-legend" v-if="estufa.total > 0">
+              <div v-for="divisao in estufa.divisoes" :key="`leg-${divisao.id}`" class="legend-item">
+                <span class="color-dot" :style="{ backgroundColor: divisao.cor }"></span>
+                {{ divisao.nome }} <span class="legend-pct">({{ divisao.porcentagem }}%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="telemetry-grid">
+        <div class="sensor-card">
+          <h3 class="card-title">
+            <span class="material-symbols-outlined" style="color: var(--primary-green);">alarm</span> Maturação e Colheitas
+          </h3>
+
+          <div v-if="lotesMaisProximosColheita.length === 0" class="empty-state">
+            Nenhum lote em maturação no momento.
+          </div>
+
+          <div v-else class="list-container">
+            <div v-for="l in lotesMaisProximosColheita" :key="l.id" class="list-item">
+              <div class="item-header">
+                <span>LOTE #{{ l.id }} — {{ l.nomeCultura }}</span>
+                <span :style="{ color: l.porcentagem >= 90 ? '#e65100' : 'var(--primary-green)' }">{{ l.porcentagem }}%</span>
+              </div>
+
+              <div class="progress-track">
+                <div class="progress-fill" :style="{ width: l.porcentagem + '%', background: l.porcentagem >= 90 ? '#e65100' : 'var(--primary-green)' }"></div>
+              </div>
+
+              <div class="item-footer">
+                <span>Mesa {{ l.mesa_id }} | Vol: {{ parseFloat(l.quantidade) }}</span>
+                <span v-if="l.diasRestantes > 0" style="font-weight: 600;">Tempo Estimado: {{ l.diasRestantes }} dias</span>
+                <span v-else style="color: #d32f2f; font-weight: 700;">Colheita Pendente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sensor-card">
+          <h3 class="card-title">
+            <span class="material-symbols-outlined" style="color: #0288d1;">history</span> Atividades Recentes
+          </h3>
+
+          <div v-if="movimentacoesRecentes.length === 0" class="empty-state">
+            Sem movimentações recentes registradas.
+          </div>
+
+          <div v-else class="list-container">
+            <div v-for="m in movimentacoesRecentes" :key="m.id" class="activity-item">
+
+              <div class="activity-icon" :style="{ background: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#e8f5e9' : '#ffebee', color: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#2e7d32' : '#c62828' }">
+                <span class="material-symbols-outlined">
+                  {{ m.tipo_movimentacao.toLowerCase() === 'entrada' ? 'arrow_downward' : 'arrow_upward' }}
+                </span>
+              </div>
+
+              <div class="activity-details">
+                <div class="activity-name">Lote #{{ m.lote_id }} — {{ m.motivo }}</div>
+                <div class="activity-date">{{ new Date(m.data_movimentacao).toLocaleString('pt-BR') }}</div>
+              </div>
+
+              <div class="activity-qty" :style="{ color: m.tipo_movimentacao.toLowerCase() === 'entrada' ? '#2e7d32' : '#c62828' }">
+                {{ m.tipo_movimentacao.toLowerCase() === 'entrada' ? '+' : '-' }}{{ parseFloat(m.quantidade) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="card-link-footer">
+            <router-link to="/estoque">Ver Histórico Completo &rarr;</router-link>
+          </div>
+        </div>
+      </div>
+    </section>
+    <Footer />
+  </main>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import Sidebar from '@/components/Sidebar.vue';
+import Footer from '@/components/Footer.vue';
+import DashHeader from '@/components/DashHeader.vue';
+import WeatherWidget from '@/components/WeatherWidget.vue';
+
+const lotes = ref([]);
+const culturas = ref([]);
+const estufas = ref([]);
+const mesas = ref([]);
+const estoque = ref([]);
+
+const coresCulturas = ['#4caf50', '#0288d1', '#ab47bc', '#ff9800', '#009688', '#e91e63', '#795548', '#607d8b'];
+
+const lotesAtivos = computed(() => lotes.value.filter(l => l.status !== 'CO' && l.status !== 'PE').length);
+const capacidadeTotal = computed(() => mesas.value.reduce((acc, m) => acc + parseFloat(m.capacidade_maxima || 0), 0));
+const movimentacoesRecentes = computed(() => estoque.value.slice(0, 4));
+
+const ocupacaoPorEstufa = computed(() => {
+  return estufas.value.map(estufa => {
+
+    const mesasEstufa = mesas.value.filter(m =>
+      String(m.estufa || m.estufa_id) === String(estufa.id)
+    );
+
+    const lotesEstufa = lotes.value.filter(l =>
+      mesasEstufa.some(m => String(m.id) === String(l.mesa || l.mesa_id)) &&
+      l.status !== 'CO' && l.status !== 'PE'
+    );
+
+    const mapCulturas = {};
+    let totalNaEstufa = 0;
+
+    lotesEstufa.forEach(lote => {
+      // DRF pode mandar cultura ou cultura_id
+      const cid = String(lote.cultura || lote.cultura_id);
+
+      if (!mapCulturas[cid]) {
+        const culturaObj = culturas.value.find(c => String(c.id) === cid);
+        mapCulturas[cid] = {
+          id: cid,
+          nome: culturaObj ? culturaObj.nome_cultura : `Cultura #${cid}`,
+          quantidade: 0
+        };
+      }
+
+      const qtd = parseFloat(lote.quantidade) || 0;
+      mapCulturas[cid].quantidade += qtd;
+      totalNaEstufa += qtd;
+    });
+
+    // 4. Transforma em array calculando a % e associando a cor
+    let divisoes = Object.values(mapCulturas).map((c, index) => {
+      const porcentagem = totalNaEstufa > 0 ? ((c.quantidade / totalNaEstufa) * 100).toFixed(1) : 0;
+      return {
+        ...c,
+        porcentagem: parseFloat(porcentagem),
+        cor: coresCulturas[index % coresCulturas.length]
+      };
+    });
+
+    divisoes.sort((a, b) => b.porcentagem - a.porcentagem);
+
+    return {
+      ...estufa,
+      total: totalNaEstufa,
+      divisoes
+    };
+  });
+});
+
+const lotesMaisProximosColheita = computed(() => {
+  return lotes.value
+    .filter(l => l.status !== 'CO' && l.status !== 'PE')
+    .map(lote => {
+      const cultura = culturas.value.find(c => c.id === lote.cultura_id);
+      if (!cultura) return null;
+      const diasPassados = Math.max(0, Math.floor((new Date() - new Date(lote.data_plantio)) / (1000 * 60 * 60 * 24)));
+      const porcentagem = Math.min(100, Math.max(0, Math.round((diasPassados / cultura.tempo_medio_colheita) * 100)));
+      const diasRestantes = Math.max(0, cultura.tempo_medio_colheita - diasPassados);
+      return { ...lote, nomeCultura: cultura.nome_cultura, porcentagem, diasRestantes };
+    })
+    .filter(item => item !== null)
+    .sort((a, b) => b.porcentagem - a.porcentagem)
+    .slice(0, 4);
+});
+
+onMounted(async () => {
+  const h = { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
+  try {
+    const [resLotes, resCulturas, resEstufas, resMesas, resEstoque] = await Promise.all([
+      fetch('/api/lotes/', { headers: h }),
+      fetch('/api/cultura/', { headers: h }),
+      fetch('/api/estufa/', { headers: h }),
+      fetch('/api/mesa/', { headers: h }),
+      fetch('/api/estoque/', { headers: h })
+    ]);
+
+    if (resLotes.ok) lotes.value = await resLotes.json();
+    if (resCulturas.ok) culturas.value = await resCulturas.json();
+    if (resEstufas.ok) estufas.value = await resEstufas.json();
+    if (resMesas.ok) mesas.value = await resMesas.json();
+    if (resEstoque.ok) estoque.value = await resEstoque.json();
+  } catch (e) {
+    console.error("Erro ao carregar dados do Dashboard:", e);
+  }
+});
+</script>
+
+<style scoped>
+/* =========================================
+   ESTRUTURA BASE DO DASHBOARD
+   ========================================= */
+
+.dashboard-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-right: 40px;
+  padding-top: 10px;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 20px 40px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  width: 100%;
+}
+
+/* =========================================
+   COMPONENTES E CARTÕES
+   ========================================= */
+
+.sensor-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.sensor-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-green);
+}
+
+.full-width-card {
+  width: 100%;
+}
+
+.kpi-card {
+  flex-direction: row;
+  align-items: center;
+  padding: 20px;
+  gap: 15px;
+}
+
+.kpi-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-icon span {
+  font-size: 1.8rem;
+}
+
+.kpi-data h3 {
+  font-size: 1.8rem;
+  color: var(--primary-dark);
+  margin: 0;
+  line-height: 1;
+}
+
+.kpi-data p {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 5px 0 0 0;
+  font-weight: 500;
+}
+
+.card-title {
+  color: var(--primary-dark);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+}
+
+.empty-state {
+  color: #999;
+  font-style: italic;
+  padding: 10px;
+  text-align: center;
+}
+
+/* =========================================
+   GRÁFICO STACKED BAR (Divisão)
+   ========================================= */
+
+.estufa-distribution-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+  margin-top: 10px;
+}
+
+.estufa-distribution-item {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.estufa-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.estufa-total {
+  font-weight: bold;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* A Barra Principal */
+.stacked-bar-container {
+  display: flex;
+  width: 100%;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 12px;
+}
+
+/* Os Segmentos Coloridos */
+.stacked-bar-segment {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.6s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.stacked-bar-segment:hover {
+  filter: brightness(1.1);
+}
+
+.segment-label {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+}
+
+.empty-segment {
+  background: #e0e0e0;
+  color: #888;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* Legenda do Gráfico */
+.distribution-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-pct {
+  color: #888;
+  font-weight: 600;
+}
+
+/* =========================================
+   LISTAS (Telemetria)
+   ========================================= */
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #444;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-icon span {
+  font-size: 1.2rem;
+}
+
+.activity-details {
+  flex: 1;
+}
+
+.activity-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--primary-dark);
+}
+
+.activity-date {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.activity-qty {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.card-link-footer {
+  text-align: center;
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+.card-link-footer a {
+  font-size: 0.85rem;
+  color: var(--primary-green);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* =========================================
+   RESPONSIVIDADE (Mobile)
+   ========================================= */
+@media (max-width: 768px) {
+  .dashboard-top-bar {
+    flex-direction: column;
+    padding-right: 0;
+    gap: 15px;
+  }
+
+  .dashboard-content {
+    padding: 20px 15px;
+  }
+
+  .estufa-distribution-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-grid, .telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .item-footer {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+</style>
