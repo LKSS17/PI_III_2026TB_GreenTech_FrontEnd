@@ -172,7 +172,6 @@ const loteSelecionado = ref(null);
 const modoCadastro = ref(false);
 const busca = ref('');
 const form = ref({ cultura_id: '', mesa_id: '', data_plantio: new Date().toISOString().split('T')[0], status: 'AT', quantidade: 0, unidade: 'Unidades', fornecedor: '', validade: '' });
-const permissoes = await verificarPermissao();
 
 // Dicionário de Status
 const mapaStatus = {

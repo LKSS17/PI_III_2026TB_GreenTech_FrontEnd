@@ -8,12 +8,17 @@ import { apiClient } from '@/services/api'
 export const useAuthStore = defineStore('auth', () => {
   const usuario = ref(null)
   const carregando = ref(false)
+  const accessToken = ref(localStorage.getItem('access_token'))
 
-  const isAuthenticated = computed(() => !!localStorage.getItem('access_token'))
-  
+  const isAuthenticated = computed(() => !!accessToken.value)
+
   const isGerente = computed(() => {
     if (!usuario.value) return false
-    return !!(usuario.value.is_gerente || usuario.value.cargo === 'Gerente' || usuario.value.is_superuser)
+    return !!(
+      usuario.value.is_gerente ||
+      usuario.value.cargo === 'Gerente' ||
+      usuario.value.is_superuser
+    )
   })
 
   const isAdmin = computed(() => {
@@ -39,7 +44,10 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function setLoginData(tokens, dadosUsuario = null) {
-    if (tokens.access) localStorage.setItem('access_token', tokens.access)
+    if (tokens.access) {
+      localStorage.setItem('access_token', tokens.access)
+      accessToken.value = tokens.access
+    }
     if (tokens.refresh) localStorage.setItem('refresh_token', tokens.refresh)
     if (dadosUsuario) usuario.value = dadosUsuario
   }
@@ -47,6 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
   function logout() {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
+    accessToken.value = null
     usuario.value = null
   }
 
@@ -58,6 +67,6 @@ export const useAuthStore = defineStore('auth', () => {
     isAdmin,
     carregarPerfil,
     setLoginData,
-    logout
+    logout,
   }
 })

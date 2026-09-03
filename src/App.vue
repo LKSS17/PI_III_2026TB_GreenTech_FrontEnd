@@ -21,3 +21,10 @@ onMounted(() => {
   }
 })
 </script>
+
+<style>
+.app-root {
+  display: flex;
+  min-height: 100vh;
+}
+</style>

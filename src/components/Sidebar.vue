@@ -1,13 +1,13 @@
 <template>
-  <aside 
+  <aside
     :class="['sidebar-nav', { 'mobile-open': isOpen, 'touch-expanded': touchExpanded }]"
     aria-label="Navegação Principal"
   >
     <div class="sidebar-header">
       <span class="brand-title">GreenTech</span>
-      <button 
-        type="button" 
-        class="btn-close-mobile" 
+      <button
+        type="button"
+        class="btn-close-mobile"
         @click="$emit('close')"
         aria-label="Fechar menu lateral"
       >
@@ -18,70 +18,69 @@
     <ul class="nav-list">
       <li class="nav-item">
         <RouterLink to="/dashboard" class="nav-link" @click="handleNavClick">
-          <span class="icon">📊</span>
+          <span class="material-symbols-outlined icon">dashboard</span>
           <span class="label">Dashboard</span>
         </RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink to="/culturas" class="nav-link" @click="handleNavClick">
-          <span class="icon">🌱</span>
+          <span class="material-symbols-outlined icon">eco</span>
           <span class="label">Culturas</span>
         </RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink to="/lotes" class="nav-link" @click="handleNavClick">
-          <span class="icon">🌾</span>
+          <span class="material-symbols-outlined icon">layers</span>
           <span class="label">Lotes</span>
         </RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink to="/colheitas" class="nav-link" @click="handleNavClick">
-          <span class="icon">🚜</span>
+          <span class="material-symbols-outlined icon">agriculture</span>
           <span class="label">Colheitas</span>
         </RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink to="/sensores" class="nav-link" @click="handleNavClick">
-          <span class="icon">📟</span>
+          <span class="material-symbols-outlined icon">sensors</span>
           <span class="label">Sensores</span>
         </RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink to="/irrigacao" class="nav-link" @click="handleNavClick">
-          <span class="icon">💧</span>
+          <span class="material-symbols-outlined icon">water_drop</span>
           <span class="label">Irrigação</span>
         </RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink to="/estoque" class="nav-link" @click="handleNavClick">
-          <span class="icon">📦</span>
+          <span class="material-symbols-outlined icon">inventory_2</span>
           <span class="label">Estoque</span>
         </RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink to="/ocr-notas" class="nav-link" @click="handleNavClick">
-          <span class="icon">📄</span>
+          <span class="material-symbols-outlined icon">receipt_long</span>
           <span class="label">Importar NF (OCR)</span>
         </RouterLink>
       </li>
       <li class="nav-item">
         <RouterLink to="/alertas" class="nav-link" @click="handleNavClick">
-          <span class="icon">🔔</span>
+          <span class="material-symbols-outlined icon">notifications</span>
           <span class="label">Alertas</span>
         </RouterLink>
       </li>
 
-      <!-- Corrigido: <li> direto dentro da <ul> sem envolver com <div> -->
       <li v-if="authStore.isGerente || authStore.isAdmin" class="nav-item">
         <RouterLink to="/historico" class="nav-link" @click="handleNavClick">
-          <span class="icon">📜</span>
+          <span class="material-symbols-outlined icon">history</span>
           <span class="label">Auditoria & Histórico</span>
         </RouterLink>
       </li>
 
       <li class="nav-item">
         <RouterLink to="/perfil" class="nav-link" @click="handleNavClick">
-          <span class="icon">👤</span>
+          <span class="material-symbols-outlined icon">person</span>
           <span class="label">Meu Perfil</span>
         </RouterLink>
       </li>
@@ -97,8 +96,8 @@ import { useAuthStore } from '@/stores/auth'
 defineProps({
   isOpen: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const emit = defineEmits(['close'])
@@ -117,7 +116,9 @@ function handleNavClick() {
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease, transform 0.3s ease;
+  transition:
+    width 0.3s ease,
+    transform 0.3s ease;
   z-index: 1000;
 }
 

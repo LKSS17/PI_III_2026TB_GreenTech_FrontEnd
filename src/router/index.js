@@ -109,28 +109,28 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from) => {
   const authStore = useAuthStore()
   const toastStore = useToastStore()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     toastStore.error('Sessão expirada ou não autenticada.')
-    return next({ name: 'login' })
+    return { name: 'login' }
   }
 
   if (to.name === 'login' && authStore.isAuthenticated) {
-    return next({ name: 'dashboard' })
+    return { name: 'dashboard' }
   }
 
   if (to.meta.requiresAuditor) {
     await authStore.carregarPerfil()
     if (!authStore.isGerente && !authStore.isAdmin) {
       toastStore.error('Acesso restrito a Gerentes e Administradores.')
-      return next({ name: 'dashboard' })
+      return { name: 'dashboard' }
     }
   }
 
-  next()
+  return true
 })
 
 export default router

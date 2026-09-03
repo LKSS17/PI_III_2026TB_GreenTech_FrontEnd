@@ -222,8 +222,6 @@ const culturas = ref([]);
 const colheitas = ref([]);
 const movimentacoesGerais = ref([]);
 
-const permissoes = await verificarPermissao();
-
 const culturaSelecionada = ref(null);
 const modoCadastro = ref(false);
 const busca = ref('');
