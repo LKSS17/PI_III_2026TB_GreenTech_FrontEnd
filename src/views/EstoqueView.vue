@@ -207,7 +207,7 @@
 </template>
 
 <script setup>
-import { carregarUsuarioLogado } from '@/assets/JS/verificarPermissao.js'
+import { verificarPermissao } from '@/assets/JS/verificarPermissao.js'
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
@@ -221,6 +221,8 @@ const lotes = ref([]);
 const culturas = ref([]);
 const colheitas = ref([]);
 const movimentacoesGerais = ref([]);
+
+const permissoes = await verificarPermissao();
 
 const culturaSelecionada = ref(null);
 const modoCadastro = ref(false);
@@ -311,9 +313,9 @@ const limparFiltros = () => {
 };
 
 const verificarAcessos = async () => {
-  const permissoes = await carregarUsuarioLogado();
-  isGerente.value = permissoes.is_gerente;
-  isAdmin.value = permissoes.is_admin;
+  const permissoes = await verificarPermissao();
+  isGerente.value = permissoes.isGerente;
+  isAdmin.value = permissoes.isAdmin;
 };
 
 const carregarDadosBase = async () => {

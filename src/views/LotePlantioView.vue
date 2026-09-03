@@ -160,7 +160,7 @@ import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Footer from "@/components/Footer.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
-import {carregarUsuarioLogado} from "@/assets/JS/verificarPermissao.js";
+import { verificarPermissao } from '@/assets/JS/verificarPermissao.js'
 
 const isGerente = ref(false);
 const isAdmin = ref(false);
@@ -172,6 +172,7 @@ const loteSelecionado = ref(null);
 const modoCadastro = ref(false);
 const busca = ref('');
 const form = ref({ cultura_id: '', mesa_id: '', data_plantio: new Date().toISOString().split('T')[0], status: 'AT', quantidade: 0, unidade: 'Unidades', fornecedor: '', validade: '' });
+const permissoes = await verificarPermissao();
 
 // Dicionário de Status
 const mapaStatus = {
@@ -219,10 +220,9 @@ const carregarDados = async () => {
 };
 
 const verificarAcessos = async () => {
-  const permissoes = await carregarUsuarioLogado();
-
-  isGerente.value = permissoes.is_gerente;
-  isAdmin.value = permissoes.is_admin;
+  const permissoes = await verificarPermissao();
+  isGerente.value = permissoes.isGerente;
+  isAdmin.value = permissoes.isAdmin;
 };
 
 const selecionar = (l) => { loteSelecionado.value = l; modoCadastro.value = false; };
