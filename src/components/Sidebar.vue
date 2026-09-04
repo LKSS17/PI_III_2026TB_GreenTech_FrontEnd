@@ -8,7 +8,7 @@
       <button
         type="button"
         class="btn-close-mobile"
-        @click="$emit('close')"
+        @click="close"
         aria-label="Fechar menu lateral"
       >
         &times;
@@ -89,23 +89,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { useSidebar } from '@/composables/useSidebar'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false,
-  },
-})
-
-const emit = defineEmits(['close'])
 const authStore = useAuthStore()
-const touchExpanded = ref(false)
+const { isOpen, close } = useSidebar()
 
 function handleNavClick() {
-  emit('close')
+  close()
 }
 </script>
 

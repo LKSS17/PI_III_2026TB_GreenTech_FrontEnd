@@ -1,11 +1,9 @@
 <template>
-  <div class="historico-container">
-    <header class="historico-header">
-      <div>
-        <h2>Auditoria Geral & Rastreabilidade</h2>
-        <p class="subtitle">Registro imutável de ações executadas pelos operadores e pelo sistema.</p>
-      </div>
-
+  <PageLayout
+    title="Auditoria Geral & Rastreabilidade"
+    subtitle="Registro imutável de ações executadas pelos operadores e pelo sistema."
+  >
+    <template #header-actions>
       <div class="filtro-auditoria">
         <label for="filtro-modulo" class="sr-only">Filtrar por Módulo</label>
         <select id="filtro-modulo" v-model="moduloFiltro" class="select-touch" @change="carregarAuditoria">
@@ -16,13 +14,11 @@
           <option value="SEGURANCA">Acesso & Autenticação</option>
         </select>
       </div>
-    </header>
+    </template>
 
     <!-- Visualização Híbrida: Tabela no Desktop / Cards no Mobile -->
     <section class="auditoria-content">
-      <div v-if="carregando" class="state-placeholder">
-        Carregando registros de auditoria...
-      </div>
+      <div v-if="carregando" class="state-placeholder">Carregando registros de auditoria...</div>
 
       <div v-else-if="registros.length === 0" class="state-placeholder">
         Nenhum evento registrado para o período solicitado.
@@ -42,7 +38,9 @@
           <tbody>
             <tr v-for="item in registros" :key="item.id" class="registro-item">
               <td data-label="Data/Hora" class="col-data">{{ item.dataHora }}</td>
-              <td data-label="Usuário" class="col-usuario"><strong>{{ item.usuario }}</strong></td>
+              <td data-label="Usuário" class="col-usuario">
+                <strong>{{ item.usuario }}</strong>
+              </td>
               <td data-label="Módulo" class="col-modulo">
                 <span class="badge-modulo">{{ item.modulo }}</span>
               </td>
@@ -55,20 +53,20 @@
 
       <!-- Paginação Ergonômica Mobile (44px target) -->
       <footer class="paginacao-footer">
-        <button 
-          type="button" 
-          class="btn-pagina" 
-          :disabled="paginaAtual === 1" 
+        <button
+          type="button"
+          class="btn-pagina"
+          :disabled="paginaAtual === 1"
           @click="mudarPagina(-1)"
           aria-label="Página Anterior"
         >
           ⬅ Anterior
         </button>
         <span class="pagina-indicador">Página {{ paginaAtual }} de {{ totalPaginas }}</span>
-        <button 
-          type="button" 
-          class="btn-pagina" 
-          :disabled="paginaAtual >= totalPaginas" 
+        <button
+          type="button"
+          class="btn-pagina"
+          :disabled="paginaAtual >= totalPaginas"
           @click="mudarPagina(1)"
           aria-label="Próxima Página"
         >
@@ -76,15 +74,13 @@
         </button>
       </footer>
     </section>
-  </div>
+  </PageLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { apiClient } from '@/services/api'
-import { useToastStore } from '@/stores/toast'
-
-const toastStore = useToastStore()
+import PageLayout from '@/components/PageLayout.vue'
 
 /**
  * CONTRATO DE DADOS PARA O DESENVOLVEDOR BACK-END:
@@ -101,15 +97,38 @@ const totalPaginas = ref(1)
 async function carregarAuditoria() {
   carregando.value = true
   try {
-    const data = await apiClient(`/funcionarios/auditoria/?modulo=${moduloFiltro.value}&page=${paginaAtual.value}`)
+    const data = await apiClient(
+      `/funcionarios/auditoria/?modulo=${moduloFiltro.value}&page=${paginaAtual.value}`,
+    )
     registros.value = data.resultados || data
     totalPaginas.value = data.totalPaginas || 1
   } catch (err) {
     // Fallback de contingência caso endpoint do DRF ainda esteja em validação de superuser
     registros.value = [
-      { id: 101, dataHora: '02/09/2026 16:45', usuario: 'lucas.souza', modulo: 'IRRIGACAO', acao: 'Disparo Manual', detalhes: 'Válvula Setor 01 acionada por 15 minutos.' },
-      { id: 102, dataHora: '02/09/2026 14:10', usuario: 'sistema.ia', modulo: 'IRRIGACAO', acao: 'Decisão Automática', detalhes: 'Acionamento cancelado: umidade acima do limiar de 60%.' },
-      { id: 103, dataHora: '02/09/2026 11:32', usuario: 'felipe.costa', modulo: 'ESTOQUE', acao: 'Importação NF-e', detalhes: 'Adicionados 50kg de Nitrato de Cálcio via OCR.' }
+      {
+        id: 101,
+        dataHora: '02/09/2026 16:45',
+        usuario: 'lucas.souza',
+        modulo: 'IRRIGACAO',
+        acao: 'Disparo Manual',
+        detalhes: 'Válvula Setor 01 acionada por 15 minutos.',
+      },
+      {
+        id: 102,
+        dataHora: '02/09/2026 14:10',
+        usuario: 'sistema.ia',
+        modulo: 'IRRIGACAO',
+        acao: 'Decisão Automática',
+        detalhes: 'Acionamento cancelado: umidade acima do limiar de 60%.',
+      },
+      {
+        id: 103,
+        dataHora: '02/09/2026 11:32',
+        usuario: 'felipe.costa',
+        modulo: 'ESTOQUE',
+        acao: 'Importação NF-e',
+        detalhes: 'Adicionados 50kg de Nitrato de Cálcio via OCR.',
+      },
     ]
   } finally {
     carregando.value = false
@@ -127,20 +146,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.historico-container {
-  padding: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.historico-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
 
 .subtitle {
   color: var(--cor-texto-secundario, #607d8b);
@@ -166,7 +171,7 @@ onMounted(() => {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-.tabela-base th, 
+.tabela-base th,
 .tabela-base td {
   padding: 1rem;
   text-align: left;
@@ -243,9 +248,9 @@ onMounted(() => {
     display: none; /* Oculta cabeçalho tabular */
   }
 
-  .tabela-base, 
-  .tabela-base tbody, 
-  .tabela-base tr, 
+  .tabela-base,
+  .tabela-base tbody,
+  .tabela-base tr,
   .tabela-base td {
     display: block;
     width: 100%;

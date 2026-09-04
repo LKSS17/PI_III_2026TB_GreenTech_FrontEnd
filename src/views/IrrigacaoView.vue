@@ -1,15 +1,9 @@
 <template>
-
-  <Sidebar/>
-
-  <div class="irrigacao-container">
-    <header class="irrigacao-header">
-      <div>
-        <h2>Controle de Irrigação & Válvulas</h2>
-        <p class="subtitle">Gestão manual programada e atuadores automatizados via IA.</p>
-      </div>
-
-      <!-- Seletor de Modo Operacional (Manual vs IA Scikit-learn) -->
+  <PageLayout
+    title="Controle de Irrigação & Válvulas"
+    subtitle="Gestão manual programada e atuadores automatizados via IA."
+  >
+    <template #header-actions>
       <div class="modo-switch-card" role="region" aria-label="Modo de Operação">
         <span class="modo-label">Modo Operacional:</span>
         <div class="switch-buttons">
@@ -19,7 +13,10 @@
             @click="definirModo('MANUAL')"
             :disabled="alterandoModo"
           >
-            ⏱️ Manual / Agendado
+            <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: -3px"
+              >schedule</span
+            >
+            Manual / Agendado
           </button>
           <button
             type="button"
@@ -27,111 +24,130 @@
             @click="definirModo('AUTOMATICO_IA')"
             :disabled="alterandoModo"
           >
-            🤖 Autônomo (IA Scikit-learn)
+            <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: -3px"
+              >smart_toy</span
+            >
+            Autônomo (IA Scikit-learn)
           </button>
         </div>
       </div>
-    </header>
+    </template>
 
-    <!-- Banner de Status da Inteligência Artificial -->
-    <section v-if="modoOperacao === 'AUTOMATICO_IA'" class="ia-banner" aria-live="polite">
-      <div class="ia-badge-wrapper">
-        <span class="pulse-indicator"></span>
-        <strong>Modelo Preditivo Ativo:</strong>
-      </div>
-      <p>
-        Árvore de Decisão monitorando sensores em tempo real. Disparos ocorrem automaticamente se a umidade do solo for inferior a <strong>{{ limiarUmidade }}%</strong> e a temperatura exceder <strong>{{ limiarTemperatura }}°C</strong>.
-      </p>
-    </section>
+    <div class="irrigacao-container">
+      <!-- Banner de Status da Inteligência Artificial -->
+      <section v-if="modoOperacao === 'AUTOMATICO_IA'" class="ia-banner" aria-live="polite">
+        <div class="ia-badge-wrapper">
+          <span class="pulse-indicator"></span>
+          <strong>Modelo Preditivo Ativo:</strong>
+        </div>
+        <p>
+          Árvore de Decisão monitorando sensores em tempo real. Disparos ocorrem automaticamente se
+          a umidade do solo for inferior a <strong>{{ limiarUmidade }}%</strong> e a temperatura
+          exceder <strong>{{ limiarTemperatura }}°C</strong>.
+        </p>
+      </section>
 
-    <div class="irrigacao-grid">
-      <!-- Painel das Válvulas Atuadoras -->
-      <section class="valvulas-section">
-        <h3>Atuadores Hidráulicos (Válvulas)</h3>
+      <div class="irrigacao-grid">
+        <!-- Painel das Válvulas Atuadoras -->
+        <section class="valvulas-section">
+          <h3>Atuadores Hidráulicos (Válvulas)</h3>
 
-        <div class="valvulas-cards-list">
-          <div
-            v-for="valvula in valvulas"
-            :key="valvula.id"
-            :class="['valvula-card', { aberta: valvula.status === 'ABERTA' }]"
-          >
-            <div class="valvula-header">
-              <span class="valvula-icon">🚰</span>
-              <div>
-                <h4>{{ valvula.nome }}</h4>
-                <span class="setor-tag">{{ valvula.setor }}</span>
+          <div class="valvulas-cards-list">
+            <div
+              v-for="valvula in valvulas"
+              :key="valvula.id"
+              :class="['valvula-card', { aberta: valvula.status === 'ABERTA' }]"
+            >
+              <div class="valvula-header">
+                <span class="material-symbols-outlined valvula-icon">faucet</span>
+                <div>
+                  <h4>{{ valvula.nome }}</h4>
+                  <span class="setor-tag">{{ valvula.setor }}</span>
+                </div>
+              </div>
+
+              <div class="valvula-status-info">
+                <span class="status-rotulo">Status Atual:</span>
+                <strong :class="['status-valor', valvula.status.toLowerCase()]">
+                  {{ valvula.status === 'ABERTA' ? 'IRRIGANDO' : 'FECHADA' }}
+                </strong>
+              </div>
+
+              <div class="valvula-acoes">
+                <button
+                  type="button"
+                  :class="[
+                    'btn-action-valvula',
+                    valvula.status === 'ABERTA' ? 'btn-fechar' : 'btn-abrir',
+                  ]"
+                  :disabled="modoOperacao === 'AUTOMATICO_IA' || acionandoValvulaId === valvula.id"
+                  @click="alternarValvula(valvula)"
+                  :title="modoOperacao === 'AUTOMATICO_IA' ? 'Controle bloqueado em modo IA' : ''"
+                >
+                  <span v-if="acionandoValvulaId === valvula.id">Comutando...</span>
+                  <span v-else>{{
+                    valvula.status === 'ABERTA' ? 'Fechar Válvula' : 'Abrir Válvula'
+                  }}</span>
+                </button>
               </div>
             </div>
-
-            <div class="valvula-status-info">
-              <span class="status-rotulo">Status Atual:</span>
-              <strong :class="['status-valor', valvula.status.toLowerCase()]">
-                {{ valvula.status === 'ABERTA' ? 'IRRIGANDO' : 'FECHADA' }}
-              </strong>
-            </div>
-
-            <div class="valvula-acoes">
-              <button
-                type="button"
-                :class="['btn-action-valvula', valvula.status === 'ABERTA' ? 'btn-fechar' : 'btn-abrir']"
-                :disabled="modoOperacao === 'AUTOMATICO_IA' || acionandoValvulaId === valvula.id"
-                @click="alternarValvula(valvula)"
-                :title="modoOperacao === 'AUTOMATICO_IA' ? 'Controle bloqueado em modo IA' : ''"
-              >
-                <span v-if="acionandoValvulaId === valvula.id">Comutando...</span>
-                <span v-else>{{ valvula.status === 'ABERTA' ? 'Fechar Válvula' : 'Abrir Válvula' }}</span>
-              </button>
-            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Painel de Explicabilidade da IA / Logs de Decisão -->
-      <section class="decisoes-section">
-        <h3>Decisões Recentes da IA (RF10)</h3>
+        <!-- Painel de Explicabilidade da IA / Logs de Decisão -->
+        <section class="decisoes-section">
+          <h3>Decisões Recentes da IA (RF10)</h3>
 
-        <div class="table-responsive-wrapper">
-          <table class="decisoes-table">
-            <thead>
-              <tr>
-                <th scope="col">Horário</th>
-                <th scope="col">Atuador</th>
-                <th scope="col">Ação Tomada</th>
-                <th scope="col">Confiança</th>
-                <th scope="col">Justificativa Agronômica</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="carregandoLogs">
-                <td colspan="5" class="loading-cell">Consultando telemetria da IA...</td>
-              </tr>
-              <tr v-else-if="logsDecisao.length === 0">
-                <td colspan="5" class="empty-cell">Nenhuma intervenção registrada hoje.</td>
-              </tr>
-              <tr v-for="log in logsDecisao" :key="log.id">
-                <td>{{ log.horario }}</td>
-                <td><strong>{{ log.valvula }}</strong></td>
-                <td>
-                  <span :class="['badge-decisao', log.acao === 'DISPARO' ? 'acao-disparo' : 'acao-bloqueio']">
-                    {{ log.acao }}
-                  </span>
-                </td>
-                <td>{{ log.confianca }}%</td>
-                <td class="justificativa-texto">{{ log.justificativa }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+          <div class="table-responsive-wrapper">
+            <table class="decisoes-table">
+              <thead>
+                <tr>
+                  <th scope="col">Horário</th>
+                  <th scope="col">Atuador</th>
+                  <th scope="col">Ação Tomada</th>
+                  <th scope="col">Confiança</th>
+                  <th scope="col">Justificativa Agronômica</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="carregandoLogs">
+                  <td colspan="5" class="loading-cell">Consultando telemetria da IA...</td>
+                </tr>
+                <tr v-else-if="logsDecisao.length === 0">
+                  <td colspan="5" class="empty-cell">Nenhuma intervenção registrada hoje.</td>
+                </tr>
+                <tr v-for="log in logsDecisao" :key="log.id">
+                  <td>{{ log.horario }}</td>
+                  <td>
+                    <strong>{{ log.valvula }}</strong>
+                  </td>
+                  <td>
+                    <span
+                      :class="[
+                        'badge-decisao',
+                        log.acao === 'DISPARO' ? 'acao-disparo' : 'acao-bloqueio',
+                      ]"
+                    >
+                      {{ log.acao }}
+                    </span>
+                  </td>
+                  <td>{{ log.confianca }}%</td>
+                  <td class="justificativa-texto">{{ log.justificativa }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
+  </PageLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { apiClient } from '@/services/api'
 import { useToastStore } from '@/stores/toast'
-import Sidebar from '@/components/Sidebar.vue'
+import PageLayout from '@/components/PageLayout.vue'
 
 const toastStore = useToastStore()
 
@@ -165,7 +181,7 @@ async function carregarDadosIrrigacao() {
     valvulas.value = [
       { id: 1, nome: 'Válvula Solenoide 01', setor: 'Setor A - Folhosas', status: 'FECHADA' },
       { id: 2, nome: 'Válvula Solenoide 02', setor: 'Setor B - Tomateiro', status: 'ABERTA' },
-      { id: 3, nome: 'Válvula Solenoide 03', setor: 'Setor C - Berçário', status: 'FECHADA' }
+      { id: 3, nome: 'Válvula Solenoide 03', setor: 'Setor C - Berçário', status: 'FECHADA' },
     ]
   }
 
@@ -186,7 +202,8 @@ async function carregarLogsDecisao() {
         valvula: 'Válvula Solenoide 02',
         acao: 'DISPARO',
         confianca: 96.4,
-        justificativa: 'Umidade do solo caiu para 38% com radiação alta. Risco de estresse hídrico na floração.'
+        justificativa:
+          'Umidade do solo caiu para 38% com radiação alta. Risco de estresse hídrico na floração.',
       },
       {
         id: 2,
@@ -194,8 +211,9 @@ async function carregarLogsDecisao() {
         valvula: 'Válvula Solenoide 01',
         acao: 'BLOQUEIO',
         confianca: 92.1,
-        justificativa: 'Umidade em 64%. Irrigação cancelada para prevenir proliferação fúngica radicular.'
-      }
+        justificativa:
+          'Umidade em 64%. Irrigação cancelada para prevenir proliferação fúngica radicular.',
+      },
     ]
   } finally {
     carregandoLogs.value = false
@@ -209,10 +227,12 @@ async function definirModo(novoModo) {
   try {
     await apiClient('/irrigacao/modo/', {
       method: 'POST',
-      body: JSON.stringify({ modo: novoModo })
+      body: JSON.stringify({ modo: novoModo }),
     })
     modoOperacao.value = novoModo
-    toastStore.success(`Modo de irrigação alterado para: ${novoModo === 'AUTOMATICO_IA' ? 'Autônomo com IA' : 'Manual'}`)
+    toastStore.success(
+      `Modo de irrigação alterado para: ${novoModo === 'AUTOMATICO_IA' ? 'Autônomo com IA' : 'Manual'}`,
+    )
   } catch {
     // Aplicação otimista caso backend esteja offline
     modoOperacao.value = novoModo
@@ -229,7 +249,7 @@ async function alternarValvula(valvula) {
   try {
     await apiClient(`/irrigacao/valvulas/${valvula.id}/comutar/`, {
       method: 'POST',
-      body: JSON.stringify({ status: novoStatus })
+      body: JSON.stringify({ status: novoStatus }),
     })
     valvula.status = novoStatus
     toastStore.success(`Válvula ${valvula.nome} agora está ${novoStatus}.`)
@@ -308,7 +328,7 @@ onMounted(() => {
 .btn-switch.active {
   background: #ffffff;
   color: var(--cor-texto-principal, #263238);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .btn-ia.active {
@@ -343,9 +363,15 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(46, 125, 50, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(46, 125, 50, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+  }
 }
 
 .irrigacao-grid {
@@ -374,7 +400,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .valvula-card.aberta {
@@ -488,7 +514,8 @@ onMounted(() => {
   color: #455a64;
 }
 
-.loading-cell, .empty-cell {
+.loading-cell,
+.empty-cell {
   text-align: center;
   padding: 2.5rem;
   color: #78909c;

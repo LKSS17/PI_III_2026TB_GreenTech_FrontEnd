@@ -1,105 +1,118 @@
 <template>
-
-  <Sidebar/>
-
-  <div class="sensores-view-container">
-    <header class="sensores-header">
-      <div>
-        <h2>Telemetria & Sensores IoT</h2>
-        <p class="subtitle">Monitoramento contínuo de temperatura, umidade e luminosidade.</p>
-      </div>
-
-      <!-- Filtros com touch targets ergonômicos (mínimo 44px) -->
+  <PageLayout
+    title="Telemetria & Sensores IoT"
+    subtitle="Monitoramento contínuo de temperatura, umidade e luminosidade."
+  >
+    <template #header-actions>
       <div class="filtros-toolbar">
         <label for="filtro-estufa" class="sr-only">Selecione a Estufa</label>
-        <select id="filtro-estufa" v-model="filtroEstufa" class="select-ergonomico" @change="carregarLeituras">
+        <select
+          id="filtro-estufa"
+          v-model="filtroEstufa"
+          class="select-ergonomico"
+          @change="carregarLeituras"
+        >
           <option value="todas">Todas as Estufas</option>
           <option value="estufa-a">Estufa Principal A</option>
           <option value="estufa-b">Estufa de Mudas B</option>
         </select>
 
-        <button type="button" class="btn-atualizar" @click="carregarLeituras" :disabled="carregando">
-          {{ carregando ? 'Lendo...' : '🔄 Atualizar' }}
+        <button
+          type="button"
+          class="btn-atualizar"
+          @click="carregarLeituras"
+          :disabled="carregando"
+        >
+          <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: -3px"
+            >refresh</span
+          >
+          {{ carregando ? 'Lendo...' : 'Atualizar' }}
         </button>
       </div>
-    </header>
+    </template>
 
-    <!-- Cards com Visão Rápida dos Sensores (Mobile First) -->
-    <section class="cards-metricas-grid">
-      <div class="metrica-card">
-        <span class="metrica-icon">🌡️</span>
-        <div class="metrica-content">
-          <span class="metrica-label">Temperatura Média</span>
-          <strong class="metrica-valor">{{ medias.temperatura }}°C</strong>
+    <div class="sensores-view-container">
+      <!-- Cards com Visão Rápida dos Sensores (Mobile First) -->
+      <section class="cards-metricas-grid">
+        <div class="metrica-card">
+          <span class="material-symbols-outlined metrica-icon">thermostat</span>
+          <div class="metrica-content">
+            <span class="metrica-label">Temperatura Média</span>
+            <strong class="metrica-valor">{{ medias.temperatura }}°C</strong>
+          </div>
         </div>
-      </div>
 
-      <div class="metrica-card">
-        <span class="metrica-icon">💧</span>
-        <div class="metrica-content">
-          <span class="metrica-label">Umidade Média</span>
-          <strong class="metrica-valor">{{ medias.umidade }}%</strong>
+        <div class="metrica-card">
+          <span class="material-symbols-outlined metrica-icon">water_drop</span>
+          <div class="metrica-content">
+            <span class="metrica-label">Umidade Média</span>
+            <strong class="metrica-valor">{{ medias.umidade }}%</strong>
+          </div>
         </div>
-      </div>
 
-      <div class="metrica-card">
-        <span class="metrica-icon">☀️</span>
-        <div class="metrica-content">
-          <span class="metrica-label">Luminosidade</span>
-          <strong class="metrica-valor">{{ medias.luminosidade }} Lux</strong>
+        <div class="metrica-card">
+          <span class="material-symbols-outlined metrica-icon">wb_sunny</span>
+          <div class="metrica-content">
+            <span class="metrica-label">Luminosidade</span>
+            <strong class="metrica-valor">{{ medias.luminosidade }} Lux</strong>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Tabela com Suporte Assistido a Scroll Horizontal -->
-    <section class="tabela-section">
-      <h3>Histórico de Leituras Recebidas</h3>
+      <!-- Tabela com Suporte Assistido a Scroll Horizontal -->
+      <section class="tabela-section">
+        <h3>Histórico de Leituras Recebidas</h3>
 
-      <div class="table-responsive-wrapper">
-        <table class="sensores-table">
-          <thead>
-            <tr>
-              <th scope="col">ID Sensor</th>
-              <th scope="col">Localização</th>
-              <th scope="col">Temperatura</th>
-              <th scope="col">Umidade</th>
-              <th scope="col">Luminosidade</th>
-              <th scope="col">Horário</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="carregando">
-              <td colspan="7" class="loading-cell">Sincronizando com os nós sensores...</td>
-            </tr>
-            <tr v-else-if="leituras.length === 0">
-              <td colspan="7" class="empty-cell">Nenhuma leitura encontrada para os filtros selecionados.</td>
-            </tr>
-            <tr v-for="item in leituras" :key="item.id">
-              <td><strong>#{{ item.sensorId }}</strong></td>
-              <td>{{ item.estufa }}</td>
-              <td>{{ item.temperatura }}°C</td>
-              <td>{{ item.umidade }}%</td>
-              <td>{{ item.luminosidade }} Lux</td>
-              <td>{{ item.timestamp }}</td>
-              <td>
-                <span :class="['badge-status', `status-${item.status}`]">
-                  {{ item.status === 'ok' ? 'Normal' : 'Atenção' }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </div>
+        <div class="table-responsive-wrapper">
+          <table class="sensores-table">
+            <thead>
+              <tr>
+                <th scope="col">ID Sensor</th>
+                <th scope="col">Localização</th>
+                <th scope="col">Temperatura</th>
+                <th scope="col">Umidade</th>
+                <th scope="col">Luminosidade</th>
+                <th scope="col">Horário</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="carregando">
+                <td colspan="7" class="loading-cell">Sincronizando com os nós sensores...</td>
+              </tr>
+              <tr v-else-if="leituras.length === 0">
+                <td colspan="7" class="empty-cell">
+                  Nenhuma leitura encontrada para os filtros selecionados.
+                </td>
+              </tr>
+              <tr v-for="item in leituras" :key="item.id">
+                <td>
+                  <strong>#{{ item.sensorId }}</strong>
+                </td>
+                <td>{{ item.estufa }}</td>
+                <td>{{ item.temperatura }}°C</td>
+                <td>{{ item.umidade }}%</td>
+                <td>{{ item.luminosidade }} Lux</td>
+                <td>{{ item.timestamp }}</td>
+                <td>
+                  <span :class="['badge-status', `status-${item.status}`]">
+                    {{ item.status === 'ok' ? 'Normal' : 'Atenção' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </PageLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { apiClient } from '@/services/api'
 import { useToastStore } from '@/stores/toast'
-import Sidebar from '@/components/Sidebar.vue'
+import PageLayout from '@/components/PageLayout.vue'
 
 const toastStore = useToastStore()
 
@@ -116,7 +129,7 @@ const filtroEstufa = ref('todas')
 const medias = ref({
   temperatura: 24.5,
   umidade: 68,
-  luminosidade: 4200
+  luminosidade: 4200,
 })
 
 async function carregarLeituras() {
@@ -127,9 +140,36 @@ async function carregarLeituras() {
   } catch (error) {
     // Fallback de dados para garantir operação contínua mesmo se os nós IoT estiverem offline
     leituras.value = [
-      { id: 1, sensorId: 'SNS-A01', estufa: 'Estufa Principal A', temperatura: 24.2, umidade: 67, luminosidade: 4500, timestamp: '17:15:02', status: 'ok' },
-      { id: 2, sensorId: 'SNS-A02', estufa: 'Estufa Principal A', temperatura: 25.1, umidade: 62, luminosidade: 4300, timestamp: '17:14:50', status: 'ok' },
-      { id: 3, sensorId: 'SNS-B01', estufa: 'Estufa de Mudas B', temperatura: 28.4, umidade: 45, luminosidade: 3800, timestamp: '17:14:12', status: 'alerta' }
+      {
+        id: 1,
+        sensorId: 'SNS-A01',
+        estufa: 'Estufa Principal A',
+        temperatura: 24.2,
+        umidade: 67,
+        luminosidade: 4500,
+        timestamp: '17:15:02',
+        status: 'ok',
+      },
+      {
+        id: 2,
+        sensorId: 'SNS-A02',
+        estufa: 'Estufa Principal A',
+        temperatura: 25.1,
+        umidade: 62,
+        luminosidade: 4300,
+        timestamp: '17:14:50',
+        status: 'ok',
+      },
+      {
+        id: 3,
+        sensorId: 'SNS-B01',
+        estufa: 'Estufa de Mudas B',
+        temperatura: 28.4,
+        umidade: 45,
+        luminosidade: 3800,
+        timestamp: '17:14:12',
+        status: 'alerta',
+      },
     ]
   } finally {
     carregando.value = false
@@ -204,7 +244,7 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   border: 1px solid var(--cor-borda, #eceff1);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .metrica-icon {
@@ -268,7 +308,8 @@ onMounted(() => {
   color: #c62828;
 }
 
-.loading-cell, .empty-cell {
+.loading-cell,
+.empty-cell {
   text-align: center;
   padding: 2.5rem;
   color: var(--cor-texto-secundario, #78909c);
