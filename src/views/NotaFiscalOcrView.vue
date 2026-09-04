@@ -1,4 +1,7 @@
 <template>
+
+  <Sidebar/>
+
   <div class="ocr-container">
     <div class="ocr-header">
       <h2>Importação de NF-e via OCR</h2>
@@ -8,17 +11,17 @@
     <div class="ocr-content-grid">
       <!-- Área de Upload -->
       <div class="upload-panel">
-        <div 
+        <div
           class="drop-zone"
           @dragover.prevent
           @drop.prevent="onFileDrop"
           @click="$refs.fileInput.click()"
         >
-          <input 
-            type="file" 
-            ref="fileInput" 
-            class="hidden-input" 
-            accept="image/*,.pdf" 
+          <input
+            type="file"
+            ref="fileInput"
+            class="hidden-input"
+            accept="image/*,.pdf"
             @change="onFileSelected"
           />
           <span class="upload-icon">📥</span>
@@ -37,7 +40,7 @@
       <!-- Área de Validação dos Dados Extraídos -->
       <div class="preview-panel">
         <h3>Dados Reconhecidos (Revisão Manual)</h3>
-        
+
         <div v-if="!dadosNota" class="empty-state">
           Nenhum documento processado. Carregue uma nota para revisar os insumos.
         </div>
@@ -94,6 +97,7 @@
 import { ref } from 'vue'
 import { apiClient } from '@/services/api'
 import { useToastStore } from '@/stores/toast'
+import Sidebar from '@/components/Sidebar.vue'
 
 const toastStore = useToastStore()
 

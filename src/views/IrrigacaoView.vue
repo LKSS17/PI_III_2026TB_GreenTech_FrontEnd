@@ -1,4 +1,7 @@
 <template>
+
+  <Sidebar/>
+
   <div class="irrigacao-container">
     <header class="irrigacao-header">
       <div>
@@ -10,16 +13,16 @@
       <div class="modo-switch-card" role="region" aria-label="Modo de Operação">
         <span class="modo-label">Modo Operacional:</span>
         <div class="switch-buttons">
-          <button 
-            type="button" 
+          <button
+            type="button"
             :class="['btn-switch', { active: modoOperacao === 'MANUAL' }]"
             @click="definirModo('MANUAL')"
             :disabled="alterandoModo"
           >
             ⏱️ Manual / Agendado
           </button>
-          <button 
-            type="button" 
+          <button
+            type="button"
             :class="['btn-switch', 'btn-ia', { active: modoOperacao === 'AUTOMATICO_IA' }]"
             @click="definirModo('AUTOMATICO_IA')"
             :disabled="alterandoModo"
@@ -45,11 +48,11 @@
       <!-- Painel das Válvulas Atuadoras -->
       <section class="valvulas-section">
         <h3>Atuadores Hidráulicos (Válvulas)</h3>
-        
+
         <div class="valvulas-cards-list">
-          <div 
-            v-for="valvula in valvulas" 
-            :key="valvula.id" 
+          <div
+            v-for="valvula in valvulas"
+            :key="valvula.id"
             :class="['valvula-card', { aberta: valvula.status === 'ABERTA' }]"
           >
             <div class="valvula-header">
@@ -68,7 +71,7 @@
             </div>
 
             <div class="valvula-acoes">
-              <button 
+              <button
                 type="button"
                 :class="['btn-action-valvula', valvula.status === 'ABERTA' ? 'btn-fechar' : 'btn-abrir']"
                 :disabled="modoOperacao === 'AUTOMATICO_IA' || acionandoValvulaId === valvula.id"
@@ -86,7 +89,7 @@
       <!-- Painel de Explicabilidade da IA / Logs de Decisão -->
       <section class="decisoes-section">
         <h3>Decisões Recentes da IA (RF10)</h3>
-        
+
         <div class="table-responsive-wrapper">
           <table class="decisoes-table">
             <thead>
@@ -128,6 +131,7 @@
 import { ref, onMounted } from 'vue'
 import { apiClient } from '@/services/api'
 import { useToastStore } from '@/stores/toast'
+import Sidebar from '@/components/Sidebar.vue'
 
 const toastStore = useToastStore()
 
@@ -350,7 +354,7 @@ onMounted(() => {
   gap: 2rem;
 }
 
-.valvulas-section h3, 
+.valvulas-section h3,
 .decisoes-section h3 {
   margin-bottom: 1rem;
   color: var(--cor-texto-principal, #263238);
@@ -448,7 +452,7 @@ onMounted(() => {
   min-width: 650px;
 }
 
-.decisoes-table th, 
+.decisoes-table th,
 .decisoes-table td {
   padding: 0.9rem;
   text-align: left;

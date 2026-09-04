@@ -1,4 +1,7 @@
 <template>
+
+  <Sidebar/>
+
   <div class="sensores-view-container">
     <header class="sensores-header">
       <div>
@@ -51,7 +54,7 @@
     <!-- Tabela com Suporte Assistido a Scroll Horizontal -->
     <section class="tabela-section">
       <h3>Histórico de Leituras Recebidas</h3>
-      
+
       <div class="table-responsive-wrapper">
         <table class="sensores-table">
           <thead>
@@ -96,6 +99,7 @@
 import { ref, onMounted } from 'vue'
 import { apiClient } from '@/services/api'
 import { useToastStore } from '@/stores/toast'
+import Sidebar from '@/components/Sidebar.vue'
 
 const toastStore = useToastStore()
 
@@ -233,7 +237,7 @@ onMounted(() => {
   min-width: 650px; /* Garante integridade das colunas disparando scroll */
 }
 
-.sensores-table th, 
+.sensores-table th,
 .sensores-table td {
   padding: 1rem;
   text-align: left;
